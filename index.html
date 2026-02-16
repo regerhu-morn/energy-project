@@ -12,30 +12,17 @@
             display: flex; flex-direction: row; min-height: 100vh;
         }
 
-        /* 📱 針對手機「直式」：上下排列 */
+        /* 手機直式排版 */
         @media (max-width: 1024px) and (orientation: portrait) {
             body { flex-direction: column; }
             #left-panel { width: 100% !important; padding: 20px; box-sizing: border-box; }
             #spline-container { height: 45vh !important; width: 100% !important; order: -1; }
             #right-panel { width: 100% !important; padding: 15px; box-sizing: border-box; }
-            #data-container { width: 100%; margin-bottom: 50px; }
-        }
-
-        /* 📱 針對手機「橫式」：左右排列並縮小比例 */
-        @media (max-width: 932px) and (orientation: landscape) {
-            body { flex-direction: row; }
-            #left-panel { width: 180px !important; padding: 15px; }
-            #left-panel h1 { font-size: 16px !important; }
-            .nav-item { padding: 8px !important; font-size: 11px !important; }
-            #spline-container { flex: 1; height: 100vh !important; }
-            #right-panel { width: 280px !important; padding: 10px; }
-            #data-container { padding: 10px; font-size: 11px; }
-            .guide-center-top { top: 10px; font-size: 10px; }
+            #data-container { width: 100%; margin-bottom: 20px; }
         }
 
         /* 面板基礎設定 */
         #left-panel { width: 300px; z-index: 100; padding: 40px 25px; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; }
-        .guide-top-left { color: #00f2ff; font-size: 13px; font-weight: bold; margin-bottom: 15px; text-shadow: 0 0 10px rgba(0, 242, 255, 0.8); }
         .nav-group { display: flex; flex-direction: column; gap: 10px; }
         .nav-item { display: block; text-decoration: none; padding: 18px 15px; background: rgba(255,255,255,0.03); border-radius: 8px; color: rgba(255,255,255,0.4); font-size: 13px; transition: 0.4s; border: 1px solid rgba(255,255,255,0.1); }
         .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.08); color: #fff; }
@@ -45,14 +32,14 @@
 
         #spline-container { flex: 1; position: relative; z-index: 10; display: flex; justify-content: center; align-items: center; min-height: 400px; cursor: pointer; }
         #main-model { width: 100%; height: 100%; transition: filter 0.5s ease; }
-        .guide-center-top { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 150; color: #fff; font-size: 12px; background: rgba(0,0,0,0.6); padding: 5px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); pointer-events: none; }
 
         #right-panel { width: 350px; z-index: 100; padding: 20px; display: flex; flex-direction: column; }
         #data-container { display: none; background: rgba(10, 15, 25, 0.95); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(15px); }
+        
         table { width: 100%; border-collapse: collapse; }
         td { padding: 12px 5px; border-bottom: 1px solid rgba(255,255,255,0.05); }
 
-        /* 💡 濾鏡修正：確保 CCS 鮮綠，USA 科技紅 */
+        /* 💡 沿用以前的方法：純色相旋轉濾鏡 */
         .tech-green-filter { filter: hue-rotate(145deg) brightness(1.2) saturate(2.5) !important; }
         .tech-red-filter { filter: hue-rotate(285deg) brightness(1.2) saturate(3) !important; }
     </style>
@@ -62,7 +49,7 @@
     <div id="left-panel">
         <div class="nav-group">
             <h1 style="font-size: 20px; margin-bottom: 5px;">國際新能源案例探析</h1>
-            <div id="left-guide" class="guide-top-left">＊ 點擊進入深度專題</div>
+            <div id="left-guide" style="color:#00f2ff; font-size:12px; margin-bottom:15px;">＊ 點擊地球切換主題</div>
             <a href="saf.html" id="nav-0" class="nav-item"><strong>SAF</strong> 產業鏈建立</a>
             <a href="ccs.html" id="nav-1" class="nav-item"><strong>CCS</strong> 跨境樞紐</a>
             <a href="usa.html" id="nav-2" class="nav-item"><strong>USA</strong> 政策風險</a>
@@ -70,7 +57,7 @@
     </div>
 
     <div id="spline-container" onclick="handleEarthClick()">
-        <div class="guide-center-top">＊ 點擊地球切換數據摘要</div>
+        <div style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 150; color: #fff; font-size: 12px; background: rgba(0,0,0,0.6); padding: 5px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);">＊ 點擊地球切換數據摘要</div>
         <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.28/build/spline-viewer.js"></script>
         <spline-viewer id="main-model" url="https://prod.spline.design/cE6TgHmxUeFvM0Q3/scene.splinecode"></spline-viewer>
     </div>
@@ -98,10 +85,10 @@
         
         document.getElementById('data-container').style.display = 'block';
         
-        // 清除濾鏡
+        // 清除 Class
         model.classList.remove('tech-green-filter', 'tech-red-filter');
         
-        // 延遲套用確保顏色更新
+        // 以前的方法：延遲後套用對應光效
         setTimeout(() => {
             if (idx === 1) model.classList.add('tech-green-filter');
             if (idx === 2) model.classList.add('tech-red-filter');
