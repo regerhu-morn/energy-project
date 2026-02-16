@@ -3,108 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>國際新能源案例</title>
+    <title>國際新能源案例 - 飛行版</title>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; color: white; height: 100vh; font-family: sans-serif; overflow: hidden; }
-
-        /* 簡單的三欄佈局，中間留給 Spline */
-        .container {
-            display: flex;
-            width: 100vw;
-            height: 100vh;
+        body, html { margin: 0; padding: 0; height: 100vh; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
+        .app-container { display: flex; width: 100vw; height: 100vh; }
+        
+        /* 實心側邊欄，確保絕對點得到 */
+        .panel { 
+            width: 380px; background: #0a0a0a; border: 1px solid #222; 
+            padding: 40px 25px; z-index: 10; box-sizing: border-box; 
         }
 
-        .side-panel {
-            width: 350px;
-            background: #000;
-            padding: 40px 20px;
-            z-index: 10;
-            border: 1px solid #222;
-        }
-
-        #spline-container {
-            flex-grow: 1;
-            position: relative;
-        }
+        /* 中間完全留給 Spline，滑鼠可直接旋轉地球 */
+        .spline-area { flex-grow: 1; background: #000; position: relative; }
+        spline-viewer { width: 100%; height: 100%; }
 
         /* 按鈕樣式 */
-        .nav-item {
-            padding: 20px; background: #111; border: 1px solid #333;
-            border-radius: 8px; margin-bottom: 15px; cursor: pointer;
-            color: #555; transition: 0.3s;
+        .nav-button { 
+            padding: 22px; background: #111; border: 1px solid #333; 
+            border-radius: 12px; margin-bottom: 18px; cursor: pointer; 
+            color: #555; transition: 0.3s; font-weight: bold;
         }
-        .nav-item.active.saf-theme { border-color: #00f2ff; color: #00f2ff; }
-        .nav-item.active.ccs-theme { border-color: #00ff88; color: #00ff88; }
-        .nav-item.active.us-theme { border-color: #ff4d4d; color: #ff4d4d; }
+        /* 點擊後的燈光主題顏色 [cite: 2026-01-31] */
+        .nav-button.active.saf { border-color: #00f2ff; color: #00f2ff; box-shadow: 0 0 15px rgba(0,242,255,0.2); }
+        .nav-button.active.ccs { border-color: #00ff88; color: #00ff88; box-shadow: 0 0 15px rgba(0,255,136,0.2); }
+        .nav-button.active.usa { border-color: #ff4d4d; color: #ff4d4d; box-shadow: 0 0 15px rgba(255,77,77,0.2); }
 
-        /* 右側數據 */
-        .data-card { background: #111; border-radius: 12px; padding: 25px; border: 1px solid #333; }
-        .title { font-size: 18px; font-weight: bold; margin-bottom: 20px; border-left: 5px solid; padding-left: 10px; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; color: #ccc; }
-        td { padding: 12px 0; border-bottom: 1px solid #222; }
+        .data-card { background: #111; border-radius: 15px; padding: 30px; border: 1px solid #333; }
+        .data-title { font-size: 22px; font-weight: bold; margin-bottom: 25px; border-left: 6px solid; padding-left: 15px; }
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: 18px 0; border-bottom: 1px solid #222; font-size: 14px; color: #ccc; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="side-panel">
-        <h2>新能源案例探析</h2>
-        <div id="btn0" onclick="updateUI(0)" class="nav-item">SAF 產業化進程</div>
-        <div id="btn1" onclick="updateUI(1)" class="nav-item">CCS 跨國合作</div>
-        <div id="btn2" onclick="updateUI(2)" class="nav-item">USA 政策轉向</div>
+<div class="app-container">
+    <div class="panel">
+        <h1 style="font-size: 26px; margin-bottom: 40px;">國際新能源案例</h1>
+        <div id="btn0" onclick="update(0)" class="nav-button">SAF 產業化進程</div>
+        <div id="btn1" onclick="update(1)" class="nav-button">CCS 跨國合作</div>
+        <div id="btn2" onclick="update(2)" class="nav-button">USA 政策轉向</div>
     </div>
 
-    <div id="spline-container">
+    <div class="spline-area">
         <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.28/build/spline-viewer.js"></script>
-        <spline-viewer url="https://prod.spline.design/cE6TgHmxUeFvM0Q3/scene.splinecode"></spline-viewer>
+        <spline-viewer id="earth" url="https://prod.spline.design/cE6TgHmxUeFvM0Q3/scene.splinecode"></spline-viewer>
     </div>
 
-    <div class="side-panel">
+    <div class="panel">
         <div class="data-card">
-            <div id="t" class="title">初始化中...</div>
-            <table id="tb"></table>
+            <div id="title" class="data-title">載入中...</div>
+            <table id="content"></table>
         </div>
     </div>
 </div>
 
 <script>
-    // 你的完整大綱數據 [cite: 2026-01-31]
-    var sequence = [
-        { 
-            t: '1. SAF 產業化進程', c: '#00f2ff', cls: 'saf-theme', 
-            rows: [['印尼 Pertamina', 'UCO 廢油量產 / 商業首航'], ['新加坡 SAFCo', '確立區域樞紐 / 徵收附加費'], ['亞太生質煉油', '成為區域脫碳核心']] 
-        },
-        { 
-            t: '2. CCS 跨國合作', c: '#00ff88', cls: 'ccs-theme', 
-            rows: [['行政體制化', '美國 Class VI 權限下放'], ['S-Hub 樞紐', '新馬印區域儲碳合作'], ['澳洲 Bonaparte', '獲重大計畫地位']] 
-        },
-        { 
-            t: '3. 美國政策轉向', c: '#ff4d4d', cls: 'us-theme', 
-            rows: [['OBBBA 法案', '推動「能源優先」轉向'], ['補貼削減', '縮減 45V 稅收優惠'], ['資金挪移', '資本從美轉向歐亞市場']] 
-        }
+    // 你的完整數據 [cite: 2026-01-31]
+    const list = [
+        { id: 'SAF', t: '1. SAF 產業化進程', c: '#00f2ff', cls: 'saf', rows: [['印尼 Pertamina', 'UCO 廢油量產'], ['新加坡 SAFCo', '確立區域樞紐'], ['亞太生質煉油', '脫碳核心手段']] },
+        { id: 'CCS', t: '2. CCS 跨國合作', c: '#00ff88', cls: 'ccs', rows: [['行政體制化', '美國 Class VI 下放'], ['S-Hub 樞紐', '區域儲碳合作'], ['澳洲 Bonaparte', '獲重大計畫地位']] },
+        { id: 'USA', t: '3. 美國政策轉向', c: '#ff4d4d', cls: 'usa', rows: [['OBBBA 法案', '能源優先轉向'], ['補貼削減', '縮減 45V 優惠'], ['資金挪移', '資本轉向歐亞']] }
     ];
 
-    function updateUI(idx) {
-        var item = sequence[idx];
-        document.getElementById('t').innerText = item.t;
-        document.getElementById('t').style.color = item.c;
-        document.getElementById('t').style.borderColor = item.c;
+    function update(i) {
+        const item = list[i];
+        const spline = document.getElementById('earth');
 
-        var html = "";
+        // 1. 觸發地球飛行效果 (Emit Event)
+        // 這裡會發送你按鈕對應的 ID (SAF, CCS, USA) 給 Spline
+        if (spline) {
+            spline.emitEvent('mouseDown', item.id); 
+            // 💡 註：請確保你在 Spline 的 Events 裡有設定對應的 ID 觸發飛行動畫
+        }
+
+        // 2. 更新文字與標題 [cite: 2026-01-31]
+        document.getElementById('title').innerText = item.t;
+        document.getElementById('title').style.color = item.c;
+        document.getElementById('title').style.borderColor = item.c;
+
+        let html = "";
         item.rows.forEach(r => {
             html += `<tr><td style="color:${item.c};font-weight:bold;width:40%">${r[0]}</td><td>${r[1]}</td></tr>`;
         });
-        document.getElementById('tb').innerHTML = html;
+        document.getElementById('content').innerHTML = html;
 
-        for(let i=0; i<3; i++) {
-            document.getElementById('btn'+i).className = 'nav-item' + (i===idx ? ' active ' + item.cls : '');
+        // 3. 更新左側按鈕高亮
+        for(let j=0; j<3; j++) {
+            document.getElementById('btn'+j).className = 'nav-button' + (i===j ? ' active ' + item.cls : '');
         }
     }
 
-    // 確保頁面加載後立刻執行，不要卡在 INITIATING
-    window.onload = function() {
-        updateUI(0);
-    };
+    // 初始化頁面
+    window.onload = () => update(0);
 </script>
 
 </body>
