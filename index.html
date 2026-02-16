@@ -5,46 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>國際新能源案例探析</title>
     <style>
-        /* 基礎設定 */
-        * { box-sizing: border-box; }
+        /* 💡 核心：恢復電腦版三欄並行佈局 */
         body { 
             margin: 0; background: #000; color: white; 
             font-family: "Microsoft JhengHei", sans-serif; overflow: hidden;
+            display: flex; /* 關鍵：重新啟動彈性佈局 */
             width: 100vw; height: 100vh;
-            display: flex; /* 恢復電腦版的三欄式 Flex 佈局 */
         }
 
-        /* 💡 左側面板：寬度固定，不被擠壓 */
+        /* 💡 左側面板：固定寬度，背景漸變 */
         #left-panel { 
             width: 320px; flex-shrink: 0; z-index: 100; padding: 40px 25px;
-            background: linear-gradient(to right, rgba(0,0,0,1) 70%, transparent);
+            background: linear-gradient(to right, rgba(0,0,0,1) 60%, transparent);
             display: flex; flex-direction: column; justify-content: center;
         }
 
-        /* 💡 中央地球：自動填滿剩餘空間，確保不壓到兩邊 */
+        /* 💡 中央地球：自動佔滿剩餘空間，確保不被兩側壓到 */
         #spline-container { 
             flex-grow: 1; position: relative; z-index: 10; 
             display: flex; justify-content: center; align-items: center;
-            min-width: 0; /* 防止 Flex 項目溢出 */
         }
         spline-viewer { width: 100%; height: 100%; outline: none; }
 
-        /* 💡 右側面板：電腦版維持在最右側 */
+        /* 💡 右側面板：電腦版恢復到最右側，不准亂跑 */
         #right-panel { 
-            width: 380px; flex-shrink: 0; z-index: 100; padding: 40px 25px;
+            width: 400px; flex-shrink: 0; z-index: 100; padding: 40px 25px;
             display: flex; flex-direction: column; justify-content: center;
         }
 
-        /* 📱 iPad/行動端專屬校正：只有螢幕小時才切換到浮動模式 */
-        @media screen and (max-width: 1180px) {
+        /* 📱 iPad 行動端修正：只有在小螢幕時，才讓右面板變成「浮動」 */
+        @media screen and (max-width: 1200px) {
+            body { position: relative; }
             #right-panel {
                 position: absolute; right: 20px; top: 20px;
-                width: 320px; height: auto; padding: 0;
+                width: 320px; padding: 0; height: auto;
             }
-            #left-panel { width: 280px; }
+            #left-panel { width: 300px; }
         }
 
-        /* 數據框樣式 */
+        /* 數據框樣式：增加一點玻璃質感 */
         #data-container { 
             display: none; background: rgba(10, 15, 25, 0.95); border-radius: 16px; 
             padding: 25px; border: 1px solid rgba(255,255,255,0.2); 
@@ -52,11 +51,11 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.8);
         }
 
-        /* 打光特效修正 */
+        /* 濾鏡效果修正 */
         .tech-green-filter { filter: brightness(1.1) sepia(0.5) hue-rotate(85deg) saturate(5) !important; -webkit-filter: brightness(1.1) sepia(0.5) hue-rotate(85deg) saturate(5) !important; }
         .tech-red-filter { filter: brightness(1.2) sepia(0.5) hue-rotate(330deg) saturate(5) !important; -webkit-filter: brightness(1.2) sepia(0.5) hue-rotate(330deg) saturate(5) !important; }
 
-        /* UI 視覺樣式 */
+        /* UI 選單樣式 */
         .nav-item { display: block; text-decoration: none; padding: 18px 15px; background: rgba(255,255,255,0.05); border-radius: 8px; color: rgba(255,255,255,0.4); font-size: 13px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.1); transition: 0.4s; }
         .nav-item.active.saf-theme { border-color: #00f2ff; color: #fff; box-shadow: 0 0 15px rgba(0, 242, 255, 0.4); }
         .nav-item.active.ccs-theme { border-color: #00ff88; color: #fff; box-shadow: 0 0 15px rgba(0, 255, 136, 0.4); }
@@ -71,13 +70,13 @@
     <div id="left-panel">
         <h1 style="font-size: 24px; margin-bottom: 5px;">國際新能源案例探析</h1>
         <div id="left-guide" style="color:#00f2ff; font-size:12px; margin-bottom:20px; font-weight:bold;">＊ 點擊進入深度專題</div>
-        <a href="saf.html" target="_blank" id="nav-0" class="nav-item"><strong>SAF</strong> 產業鏈建立</a>
-        <a href="ccs.html" target="_blank" id="nav-1" class="nav-item"><strong>CCS</strong> 跨境樞紐</a>
-        <a href="usa.html" target="_blank" id="nav-2" class="nav-item"><strong>USA</strong> 政策風險</a>
+        <a href="saf.html" target="_blank" id="nav-0" class="nav-item"><strong>SAF</strong> 產業鏈建立與目標</a>
+        <a href="ccs.html" target="_blank" id="nav-1" class="nav-item"><strong>CCS</strong> 跨境樞紐與監控</a>
+        <a href="usa.html" target="_blank" id="nav-2" class="nav-item"><strong>USA</strong> 美國大選政策風險</a>
     </div>
 
     <div id="spline-container">
-        <div style="position:absolute; top:40px; color:#fff; font-size:12px; z-index:150; background:rgba(0,0,0,0.6); padding:8px 20px; border-radius:20px; border:1px solid rgba(255,255,255,0.2); pointer-events:none;">＊ 拖拽旋轉地球 / 點擊切換專題</div>
+        <div style="position:absolute; top:50px; color:#fff; font-size:12px; z-index:150; background:rgba(0,0,0,0.6); padding:8px 20px; border-radius:20px; border:1px solid rgba(255,255,255,0.2); pointer-events:none;">＊ 拖拽旋轉地球 / 點擊切換專題</div>
         <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.28/build/spline-viewer.js"></script>
         <spline-viewer id="main-model" url="https://prod.spline.design/cE6TgHmxUeFvM0Q3/scene.splinecode"></spline-viewer>
     </div>
@@ -100,7 +99,7 @@
     var startX, startY;
     const viewer = document.getElementById('main-model');
 
-    // 智能點擊判斷
+    // 智能點擊監聽 (防止拖拽與點擊衝突)
     viewer.addEventListener('pointerdown', (e) => { startX = e.clientX; startY = e.clientY; });
     viewer.addEventListener('pointerup', (e) => {
         const diffX = Math.abs(e.clientX - startX);
@@ -131,7 +130,7 @@
         setTimeout(() => {
             if (idx === 1) viewer.classList.add('tech-green-filter');
             if (idx === 2) viewer.classList.add('tech-red-filter');
-        }, 50);
+        }, 30);
         clickCount++;
     }
     </script>
