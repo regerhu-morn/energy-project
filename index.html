@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>國際新能源案例探析</title>
     <style>
-        /* 這裡保留你原始的所有 CSS 樣式，完全不動 */
         body { 
             margin: 0; background: #000; color: white; 
             font-family: "Microsoft JhengHei", sans-serif; overflow: hidden;
@@ -13,15 +12,21 @@
             width: 100vw; height: 100vh;
         }
 
+        /* 💡 左側面板 */
         #left-panel { 
             z-index: 100; padding: 40px 25px; 
             background: linear-gradient(to right, rgba(0,0,0,1) 70%, rgba(0,0,0,0)); 
             display: flex; flex-direction: column; 
         }
 
+        /* 左側上方提示文字：點擊進入專題 */
         .guide-top-left {
-            color: #00f2ff; font-size: 13px; font-weight: bold; letter-spacing: 1px;
-            margin-bottom: 15px; text-shadow: 0 0 10px rgba(0, 242, 255, 0.8);
+            color: #00f2ff;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.8);
             transition: color 0.5s;
         }
 
@@ -42,18 +47,20 @@
         .nav-item:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.3); color: #fff; }
         .nav-item:hover::after { opacity: 1; }
 
+        /* 主題色彩控制 */
         .nav-item.active.saf-theme { border-color: #00f2ff; color: #fff; box-shadow: 0 0 15px rgba(0, 242, 255, 0.3); background: rgba(0, 242, 255, 0.05); }
         .nav-item.active.ccs-theme { border-color: #00ff88; color: #fff; box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); background: rgba(0, 255, 136, 0.05); }
         .nav-item.active.us-theme { border-color: #ff4d4d; color: #fff; box-shadow: 0 0 15px rgba(255, 77, 77, 0.3); background: rgba(255, 77, 77, 0.05); }
 
+        /* 中央 3D 舞台與濾鏡 */
         #spline-container { position: relative; z-index: 10; display: flex; justify-content: center; align-items: center; transition: 0.6s ease; cursor: pointer; }
         
-        #main-model { transition: filter 0.8s ease; width: 100%; height: 100%; }
-        /* 💡 濾鏡增強：確保綠光與紅光（弘光）效果明顯 */
-        .tech-green-filter { filter: brightness(1.2) hue-rotate(90deg) saturate(2) drop-shadow(0 0 20px #00ff88) !important; }
-        .tech-red-filter { filter: brightness(1.2) hue-rotate(320deg) saturate(2) drop-shadow(0 0 20px #ff4d4d) !important; }
+        /* 💡 你的綠光與紅光特效代碼加回這裡 */
+        .tech-green-filter { filter: brightness(1.1) sepia(1) hue-rotate(80deg) saturate(6) drop-shadow(0 0 30px #00ff88) !important; }
+        .tech-red-filter { filter: brightness(1.2) sepia(1) hue-rotate(320deg) saturate(8) drop-shadow(0 0 40px #ff4d4d) !important; }
         .blue-floor-bg { background: radial-gradient(circle, rgba(0, 80, 200, 0.15) 0%, transparent 70%) !important; }
 
+        /* 地球上方提示文字 */
         .guide-center-top {
             position: absolute; top: 50px; left: 50%; transform: translateX(-50%);
             z-index: 150; color: #fff; font-size: 14px; font-weight: bold; letter-spacing: 2px;
@@ -62,12 +69,14 @@
             pointer-events: none;
         }
 
+        /* 右側面板 */
         #right-panel { z-index: 100; padding: 40px 20px; display: flex; flex-direction: column; justify-content: center; }
         #data-container { display: none; background: rgba(10, 15, 25, 0.95); border-radius: 15px; padding: 25px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(15px); }
         .table-title { font-size: 16px; font-weight: bold; margin-bottom: 20px; border-left: 4px solid currentColor; padding-left: 10px; }
         table { width: 100%; font-size: 13px; color: #ccc; border-collapse: collapse; }
         td { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; }
-        .val { text-align: left; color: #fff; font-weight: bold; line-height: 1.4; }
+        .val { text-align: right; color: #fff; font-weight: bold; line-height: 1.4; }
+        .sub-data { display: block; font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px; }
     </style>
 </head>
 <body>
@@ -77,17 +86,17 @@
             <h1 style="font-size: 24px; margin-bottom: 5px;">國際新能源案例探析</h1>
             <div id="left-guide" class="guide-top-left">＊ 點擊進入深度專題</div>
 
-            <a href="javascript:void(0)" onclick="updateToIndex(0)" id="nav-0" class="nav-item">
+            <a href="saf.html" id="nav-0" class="nav-item">
                 <strong style="display: block; font-size: 16px; margin-bottom: 4px;">SAF</strong>
                 產業鏈建立與產量目標
             </a>
             
-            <a href="javascript:void(0)" onclick="updateToIndex(1)" id="nav-1" class="nav-item">
+            <a href="ccs.html" id="nav-1" class="nav-item">
                 <strong style="display: block; font-size: 16px; margin-bottom: 4px;">CCS</strong>
                 跨境樞紐與儲量監控
             </a>
             
-            <a href="javascript:void(0)" onclick="updateToIndex(2)" id="nav-2" class="nav-item">
+            <a href="usa.html" id="nav-2" class="nav-item">
                 <strong style="display: block; font-size: 16px; margin-bottom: 4px;">USA</strong>
                 美國大選與政策風險
             </a>
@@ -96,6 +105,7 @@
 
     <div id="spline-container" onclick="handleEarthClick()">
         <div class="guide-center-top">＊ 點擊地球切換專題摘要表</div>
+
         <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.28/build/spline-viewer.js"></script>
         <spline-viewer id="main-model" url="https://prod.spline.design/cE6TgHmxUeFvM0Q3/scene.splinecode"></spline-viewer>
     </div>
@@ -108,63 +118,92 @@
     </div>
 
    <script>
-    // 數據內容 [cite: 2026-01-31]
     var sequence = [
-        { id: 'SAF', title: '1. SAF 產業化進程', color: '#00f2ff', theme: 'saf-theme', rows: [['印尼 Pertamina', 'UCO 廢油量產 / 商業首航', '完成產業鏈閉環'], ['新加坡 SAFCo', '中央採購 / 徵收附加費', '確立區域樞紐'], ['亞太生質煉油', '越馬投入大型煉油廠', '脫碳核心手段']] },
-        { id: 'CCS', title: '2. CCS 跨國合作', color: '#00ff88', theme: 'ccs-theme', rows: [['行政體制化', '美國 Class VI 權限下放', '加速審核流程'], ['S-Hub 樞紐', '新馬印區域儲碳合作', '共享經濟模式'], ['澳洲 Bonaparte', '獲政府授權重大地位', '千萬噸級封存']] },
-        { id: 'USA', title: '3. 美國政策轉向', color: '#ff4d4d', theme: 'us-theme', rows: [['OBBBA 法案', '能源優先轉向', '取消租賃限制'], ['補貼削減', '縮減 45V 稅收優惠', '重估在美佈局'], ['資金挪移', '資本從美轉向歐亞', '加速自主鏈']] }
+        { 
+            title: '1. SAF 產業化進程', 
+            color: '#00f2ff', 
+            theme: 'saf-theme', 
+            rows: [
+                ['印尼 Pertamina', 'UCO 廢油量產 / 商業首航', '完成產業鏈閉環，取得國際認證'], 
+                ['新加坡 SAFCo', '中央採購 / 徵收離境附加費', '建立穩定資助機制，確立區域樞紐'], 
+                ['亞太生質煉油', '越馬投入大型煉油廠建設', 'SAF 成為區域脫碳核心手段']
+            ] 
+        },
+        { 
+            title: '2. CCS 跨國合作', 
+            color: '#00ff88', 
+            theme: 'ccs-theme', 
+            rows: [
+                ['行政體制化', '美國 Class VI 監管權下放', '加速審核流程，降低法規風險'], 
+                ['S-Hub 樞紐', '新馬印推動區域儲碳合作', '解決跨國運輸法規，共享經濟模式'], 
+                ['澳洲 Bonaparte', '獲政府授權重大計畫地位', '年封存量千萬噸級，支撐亞太減碳']
+            ] 
+        },
+        { 
+            title: '3. 美國政策轉向', 
+            color: '#ff4d4d', 
+            theme: 'us-theme', 
+            rows: [
+                ['OBBBA 法案', '推動「能源優先」結構轉向', '取消聯邦租賃限制，放寬排放費'], 
+                ['補貼削減', '縮減 45V 綠氫等稅收優惠', '引發全球投資者重估在美佈局'], 
+                ['資金挪移', '資本從美國轉向歐亞市場', '促使亞洲加速自主供應鏈建設']
+            ] 
+        }
     ];
 
     var clickCount = 0;
 
-    // 讓左邊按鈕也能觸發
-    function updateToIndex(i) {
-        clickCount = i;
-        renderUI();
-    }
-
     function handleEarthClick() {
-        renderUI();
-        clickCount++;
-    }
-
-    function renderUI() {
         var idx = clickCount % 3;
         var data = sequence[idx];
-        var model = document.getElementById('main-model');
 
-        // 1. 執行 Spline 飛行與變色指令
-        if (model && model.shadowRoot) {
-            // 飛向對應狀態 (需 Spline 內 Events 名稱為 SAF, CCS, USA)
-            model.emitEvent('mouseDown', data.id); 
-            // 嘗試變換 Spline 變數（如果有 LightColor 變數）
-            model.setVariable('LightColor', idx + 1);
-        }
-
-        // 2. 更新右側面板
+        // 1. 顯示數據面板與標題更新
         document.getElementById('data-container').style.display = 'block';
         document.getElementById('table-title').innerText = data.title;
         document.getElementById('table-title').style.color = data.color;
 
+        // --- 核心整合：三欄分散對齊，換行自動靠左 ---
         var rowsHtml = "";
-        data.rows.forEach(row => {
-            rowsHtml += `<tr>
-                <td style="color:${data.color}; font-weight:bold; width:30%;">${row[0]}</td>
-                <td class="val" style="width:40%;">${row[1]}</td>
-                <td style="font-size:11px; opacity:0.6; width:30%;">${row[2]}</td>
-            </tr>`;
-        });
+        for (var i = 0; i < data.rows.length; i++) {
+            rowsHtml += '<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">' +
+                        // 第一欄：項目 (寬度 25%)
+                        '<td style="color:' + data.color + '; font-weight:bold; width:25%; padding: 12px 5px; vertical-align: top; text-align: justify; text-align-last: left;">' + 
+                            data.rows[i][0] + 
+                        '</td>' + 
+                        // 第二欄：核心數據 (寬度 45%，重點調整)
+                        '<td class="val" style="width:45%; padding: 12px 15px; line-height: 1.6; color: #fff; vertical-align: top; text-align: justify; text-align-last: left; word-break: break-all;">' + 
+                            data.rows[i][1] + 
+                        '</td>' + 
+                        // 第三欄：影響意義 (寬度 30%)
+                        '<td style="font-size:0.85em; opacity:0.7; width:30%; padding: 12px 5px; vertical-align: top; text-align: justify; text-align-last: left; line-height: 1.4;">' + 
+                            data.rows[i][2] + 
+                        '</td>' + 
+                        '</tr>';
+        }
         document.getElementById('table-body').innerHTML = rowsHtml;
 
-        // 3. 更新左側與濾鏡
-        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active', 'saf-theme', 'ccs-theme', 'us-theme'));
-        document.getElementById('nav-' + idx).classList.add('active', data.theme);
-        document.getElementById('left-guide').style.color = data.color;
+            // 2. 更新左側導航與提示文字顏色
+            var navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active', 'saf-theme', 'ccs-theme', 'us-theme'));
+            document.getElementById('nav-' + idx).classList.add('active', data.theme);
+            document.getElementById('left-guide').style.color = data.color;
 
-        model.classList.remove('tech-green-filter', 'tech-red-filter');
-        if (idx === 1) model.classList.add('tech-green-filter'); // CCS 綠光
-        if (idx === 2) model.classList.add('tech-red-filter');   // USA 紅光
-    }
+            // 3. 💡 切換綠光與紅光特效
+            var container = document.getElementById('spline-container');
+            var model = document.getElementById('main-model');
+
+            model.classList.remove('tech-green-filter', 'tech-red-filter');
+            container.classList.remove('blue-floor-bg');
+
+            if (idx === 1) { // CCS 綠色主題
+                model.classList.add('tech-green-filter');
+            } else if (idx === 2) { // USA 紅色主題
+                model.classList.add('tech-red-filter');
+                container.classList.add('blue-floor-bg');
+            }
+
+            clickCount++;
+        }
     </script>
 </body>
 </html>
