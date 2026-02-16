@@ -19,7 +19,6 @@
             display: flex; flex-direction: column; 
         }
 
-        /* 左側上方提示文字：點擊進入專題 */
         .guide-top-left {
             color: #00f2ff;
             font-size: 13px;
@@ -55,7 +54,8 @@
         /* 中央 3D 舞台與濾鏡 */
         #spline-container { position: relative; z-index: 10; display: flex; justify-content: center; align-items: center; transition: 0.6s ease; cursor: pointer; }
         
-        /* 💡 你的綠光與紅光特效代碼加回這裡 */
+        /* 💡 修正：補全濾鏡數值以對應綠光與紅光 */
+        #main-model { transition: filter 0.8s ease; width: 100%; height: 100%; }
         .tech-green-filter { filter: brightness(1.1) sepia(1) hue-rotate(80deg) saturate(6) drop-shadow(0 0 30px #00ff88) !important; }
         .tech-red-filter { filter: brightness(1.2) sepia(1) hue-rotate(320deg) saturate(8) drop-shadow(0 0 40px #ff4d4d) !important; }
         .blue-floor-bg { background: radial-gradient(circle, rgba(0, 80, 200, 0.15) 0%, transparent 70%) !important; }
@@ -162,19 +162,16 @@
         document.getElementById('table-title').innerText = data.title;
         document.getElementById('table-title').style.color = data.color;
 
-        // --- 核心整合：三欄分散對齊，換行自動靠左 ---
+        // --- 核心整合：表格渲染 ---
         var rowsHtml = "";
         for (var i = 0; i < data.rows.length; i++) {
             rowsHtml += '<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">' +
-                        // 第一欄：項目 (寬度 25%)
                         '<td style="color:' + data.color + '; font-weight:bold; width:25%; padding: 12px 5px; vertical-align: top; text-align: justify; text-align-last: left;">' + 
                             data.rows[i][0] + 
                         '</td>' + 
-                        // 第二欄：核心數據 (寬度 45%，重點調整)
                         '<td class="val" style="width:45%; padding: 12px 15px; line-height: 1.6; color: #fff; vertical-align: top; text-align: justify; text-align-last: left; word-break: break-all;">' + 
                             data.rows[i][1] + 
                         '</td>' + 
-                        // 第三欄：影響意義 (寬度 30%)
                         '<td style="font-size:0.85em; opacity:0.7; width:30%; padding: 12px 5px; vertical-align: top; text-align: justify; text-align-last: left; line-height: 1.4;">' + 
                             data.rows[i][2] + 
                         '</td>' + 
@@ -182,28 +179,28 @@
         }
         document.getElementById('table-body').innerHTML = rowsHtml;
 
-            // 2. 更新左側導航與提示文字顏色
-            var navItems = document.querySelectorAll('.nav-item');
-            navItems.forEach(item => item.classList.remove('active', 'saf-theme', 'ccs-theme', 'us-theme'));
-            document.getElementById('nav-' + idx).classList.add('active', data.theme);
-            document.getElementById('left-guide').style.color = data.color;
+        // 2. 更新左側導航與提示文字顏色
+        var navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => item.classList.remove('active', 'saf-theme', 'ccs-theme', 'us-theme'));
+        document.getElementById('nav-' + idx).classList.add('active', data.theme);
+        document.getElementById('left-guide').style.color = data.color;
 
-            // 3. 💡 切換綠光與紅光特效
-            var container = document.getElementById('spline-container');
-            var model = document.getElementById('main-model');
+        // 3. 💡 切換濾光特效
+        var container = document.getElementById('spline-container');
+        var model = document.getElementById('main-model');
 
-            model.classList.remove('tech-green-filter', 'tech-red-filter');
-            container.classList.remove('blue-floor-bg');
+        model.classList.remove('tech-green-filter', 'tech-red-filter');
+        container.classList.remove('blue-floor-bg');
 
-            if (idx === 1) { // CCS 綠色主題
-                model.classList.add('tech-green-filter');
-            } else if (idx === 2) { // USA 紅色主題
-                model.classList.add('tech-red-filter');
-                container.classList.add('blue-floor-bg');
-            }
-
-            clickCount++;
+        if (idx === 1) { // CCS 綠光
+            model.classList.add('tech-green-filter');
+        } else if (idx === 2) { // USA 紅光 (弘光)
+            model.classList.add('tech-red-filter');
+            container.classList.add('blue-floor-bg');
         }
+
+        clickCount++;
+    }
     </script>
 </body>
 </html>
