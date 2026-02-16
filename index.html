@@ -28,11 +28,15 @@
             pointer-events: auto;
         }
 
-        /* 💡 浮動 UI：右側面板 (解決不見的問題) */
+        /* 💡 浮動 UI：右側面板 (微調：寬度變小，位置更靠右) */
         #right-panel { 
-            position: absolute; right: 20px; top: 0; width: 340px; height: 100%;
+            position: absolute; 
+            right: 10px; /* 這裡調更靠右 */
+            top: 0; 
+            width: 300px; /* 這裡調小一點 */
+            height: 100%;
             z-index: 10; display: flex; flex-direction: column; justify-content: center;
-            pointer-events: none; /* 讓點擊可以穿透 */
+            pointer-events: none; 
         }
         #data-container { 
             display: none; background: rgba(10, 15, 25, 0.95); border-radius: 15px; 
@@ -41,7 +45,7 @@
             pointer-events: auto; box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
 
-        /* 💡 透明點擊層：解決點地球沒反應的問題 */
+        /* 💡 透明點擊層 */
         #click-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 5; cursor: pointer;
@@ -57,7 +61,6 @@
             -webkit-filter: brightness(1.3) sepia(0.8) hue-rotate(330deg) saturate(7) !important;
         }
 
-        /* 其他樣式保留 */
         .nav-item { 
             display: block; text-decoration: none; padding: 18px 15px; background: rgba(255,255,255,0.05); 
             border-radius: 8px; color: rgba(255,255,255,0.4); font-size: 13px; margin-bottom: 12px;
@@ -107,11 +110,9 @@
     var clickCount = 0;
 
     function handleEarthClick() {
-        console.log("Earth Clicked!"); // 測試用
         var idx = clickCount % 3;
         var data = sequence[idx];
 
-        // 1. 顯示面板
         var dc = document.getElementById('data-container');
         dc.style.display = 'block';
         document.getElementById('table-title').innerText = data.title;
@@ -125,16 +126,13 @@
         }
         document.getElementById('table-body').innerHTML = rowsHtml;
 
-        // 2. UI 同步
         document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active', 'saf-theme', 'ccs-theme', 'us-theme'));
         document.getElementById('nav-' + idx).classList.add('active', data.theme);
         document.getElementById('left-guide').style.color = data.color;
 
-        // 3. 濾鏡打光 (針對 iPad 加強渲染)
         var model = document.getElementById('main-model');
         model.classList.remove('tech-green-filter', 'tech-red-filter');
         
-        // 強制重繪濾鏡
         setTimeout(function(){
             if (idx === 1) model.classList.add('tech-green-filter');
             if (idx === 2) model.classList.add('tech-red-filter');
