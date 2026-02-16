@@ -2,98 +2,80 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>國際新能源案例探析</title>
     <style>
         body { 
             margin: 0; background: #000; color: white; 
             font-family: "Microsoft JhengHei", sans-serif; overflow: hidden;
-            display: grid; grid-template-columns: 300px 1fr 320px; 
+            display: grid; 
+            /* 💡 修正：使用更靈活的比例，避免擠壓 */
+            grid-template-columns: minmax(250px, 300px) 1fr minmax(300px, 350px); 
             width: 100vw; height: 100vh;
         }
 
-        /* 💡 左側面板 */
-        #left-panel { 
-            z-index: 100; padding: 40px 25px; 
-            background: linear-gradient(to right, rgba(0,0,0,1) 70%, rgba(0,0,0,0)); 
-            display: flex; flex-direction: column; 
+        /* 💡 針對 iPad / 平板的修正：如果寬度小於 1024px，改變佈局 */
+        @media screen and (max-width: 1024px) {
+            body {
+                display: block; /* 取消 grid，改用絕對定位 */
+                position: relative;
+            }
+            #left-panel {
+                position: absolute; top: 0; left: 0; width: 280px; height: 100%;
+                background: linear-gradient(to right, rgba(0,0,0,0.9), transparent) !important;
+            }
+            #right-panel {
+                position: absolute; top: 0; right: 20px; width: 320px; height: 100%;
+                pointer-events: none; /* 避免擋住點擊地球 */
+            }
+            #data-container {
+                pointer-events: auto; /* 讓數據面板可以滾動 */
+                margin-top: 100px;
+                max-height: 70vh;
+                overflow-y: auto;
+            }
+            #spline-container {
+                position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+                z-index: 5;
+            }
         }
 
-        .guide-top-left {
-            color: #00f2ff; font-size: 13px; font-weight: bold; letter-spacing: 1px;
-            margin-bottom: 15px; text-shadow: 0 0 10px rgba(0, 242, 255, 0.8);
-            transition: color 0.5s;
-        }
+        #left-panel { z-index: 100; padding: 40px 25px; display: flex; flex-direction: column; }
+        .guide-top-left { color: #00f2ff; font-size: 13px; font-weight: bold; margin-bottom: 15px; text-shadow: 0 0 10px rgba(0, 242, 255, 0.8); }
 
         .nav-group { display: flex; flex-direction: column; gap: 10px; }
-
         .nav-item { 
-            display: block; text-decoration: none;
-            padding: 18px 15px; background: rgba(255,255,255,0.03); 
-            border-radius: 8px; color: rgba(255,255,255,0.4); 
-            font-size: 13px; transition: 0.4s; border: 1px solid rgba(255,255,255,0.1); 
-            position: relative; overflow: hidden;
+            display: block; text-decoration: none; padding: 18px 15px; background: rgba(255,255,255,0.03); 
+            border-radius: 8px; color: rgba(255,255,255,0.4); font-size: 13px; transition: 0.4s; border: 1px solid rgba(255,255,255,0.1); 
         }
-        
-        .nav-item::after {
-            content: "進入專題 →"; position: absolute; right: 15px; bottom: 8px;
-            font-size: 9px; opacity: 0; transition: 0.3s; color: inherit;
-        }
-        .nav-item:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.3); color: #fff; }
-        .nav-item:hover::after { opacity: 1; }
+        .nav-item.active.saf-theme { border-color: #00f2ff; color: #fff; box-shadow: 0 0 15px rgba(0, 242, 255, 0.3); }
+        .nav-item.active.ccs-theme { border-color: #00ff88; color: #fff; box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); }
+        .nav-item.active.us-theme { border-color: #ff4d4d; color: #fff; box-shadow: 0 0 15px rgba(255, 77, 77, 0.3); }
 
-        .nav-item.active.saf-theme { border-color: #00f2ff; color: #fff; box-shadow: 0 0 15px rgba(0, 242, 255, 0.3); background: rgba(0, 242, 255, 0.05); }
-        .nav-item.active.ccs-theme { border-color: #00ff88; color: #fff; box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); background: rgba(0, 255, 136, 0.05); }
-        .nav-item.active.us-theme { border-color: #ff4d4d; color: #fff; box-shadow: 0 0 15px rgba(255, 77, 77, 0.3); background: rgba(255, 77, 77, 0.05); }
-
-        #spline-container { position: relative; z-index: 10; display: flex; justify-content: center; align-items: center; transition: 0.6s ease; cursor: pointer; }
-        
-        .tech-green-filter { filter: brightness(1.1) sepia(1) hue-rotate(80deg) saturate(6) drop-shadow(0 0 30px #00ff88) !important; }
-        .tech-red-filter { filter: brightness(1.2) sepia(1) hue-rotate(320deg) saturate(8) drop-shadow(0 0 40px #ff4d4d) !important; }
-        .blue-floor-bg { background: radial-gradient(circle, rgba(0, 80, 200, 0.15) 0%, transparent 70%) !important; }
-
-        .guide-center-top {
-            position: absolute; top: 50px; left: 50%; transform: translateX(-50%);
-            z-index: 150; color: #fff; font-size: 14px; font-weight: bold; letter-spacing: 2px;
-            background: rgba(0,0,0,0.6); padding: 8px 25px; border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.2); text-shadow: 0 0 10px rgba(255,255,255,0.8);
-            pointer-events: none;
-        }
+        #spline-container { position: relative; z-index: 10; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .tech-green-filter { filter: brightness(1.1) sepia(1) hue-rotate(80deg) saturate(6) !important; }
+        .tech-red-filter { filter: brightness(1.2) sepia(1) hue-rotate(320deg) saturate(8) !important; }
 
         #right-panel { z-index: 100; padding: 40px 20px; display: flex; flex-direction: column; justify-content: center; }
-        #data-container { display: none; background: rgba(10, 15, 25, 0.95); border-radius: 15px; padding: 25px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(15px); }
-        .table-title { font-size: 16px; font-weight: bold; margin-bottom: 20px; border-left: 4px solid currentColor; padding-left: 10px; }
-        table { width: 100%; font-size: 13px; color: #ccc; border-collapse: collapse; }
-        td { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; }
-        .val { text-align: right; color: #fff; font-weight: bold; line-height: 1.4; }
+        #data-container { display: none; background: rgba(10, 15, 25, 0.9); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(15px); }
+        .table-title { font-size: 16px; font-weight: bold; margin-bottom: 15px; border-left: 4px solid currentColor; padding-left: 10px; }
+        table { width: 100%; font-size: 12px; color: #ccc; border-collapse: collapse; }
+        td { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
     </style>
 </head>
 <body>
 
     <div id="left-panel">
         <div class="nav-group">
-            <h1 style="font-size: 24px; margin-bottom: 5px;">國際新能源案例探析</h1>
+            <h1 style="font-size: 22px; margin-bottom: 5px;">國際新能源案例探析</h1>
             <div id="left-guide" class="guide-top-left">＊ 點擊進入深度專題</div>
-
-            <a href="saf.html" target="_blank" id="nav-0" class="nav-item">
-                <strong style="display: block; font-size: 16px; margin-bottom: 4px;">SAF</strong>
-                產業鏈建立與產量目標
-            </a>
-            
-            <a href="ccs.html" target="_blank" id="nav-1" class="nav-item">
-                <strong style="display: block; font-size: 16px; margin-bottom: 4px;">CCS</strong>
-                跨境樞紐與儲量監控
-            </a>
-            
-            <a href="usa.html" target="_blank" id="nav-2" class="nav-item">
-                <strong style="display: block; font-size: 16px; margin-bottom: 4px;">USA</strong>
-                美國大選與政策風險
-            </a>
+            <a href="saf.html" target="_blank" id="nav-0" class="nav-item"><strong>SAF</strong> 產業鏈建立</a>
+            <a href="ccs.html" target="_blank" id="nav-1" class="nav-item"><strong>CCS</strong> 跨境樞紐</a>
+            <a href="usa.html" target="_blank" id="nav-2" class="nav-item"><strong>USA</strong> 政策風險</a>
         </div>
     </div>
 
     <div id="spline-container" onclick="handleEarthClick()">
-        <div class="guide-center-top">＊ 點擊地球切換專題摘要表</div>
         <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.28/build/spline-viewer.js"></script>
         <spline-viewer id="main-model" url="https://prod.spline.design/cE6TgHmxUeFvM0Q3/scene.splinecode"></spline-viewer>
     </div>
@@ -107,77 +89,37 @@
 
     <script>
     var sequence = [
-        { 
-            title: '1. SAF 產業化進程', 
-            color: '#00f2ff', 
-            theme: 'saf-theme', 
-            rows: [
-                ['印尼 Pertamina', 'UCO 廢油量產 / 商業首航', '完成產業鏈閉環'], 
-                ['新加坡 SAFCo', '中央採購 / 徵收離境附加費', '建立穩定資助機制'], 
-                ['亞太生質煉油', '越馬投入大型煉油廠建設', '區域脫碳核心手段']
-            ] 
-        },
-        { 
-            title: '2. CCS 跨國合作', 
-            color: '#00ff88', 
-            theme: 'ccs-theme', 
-            rows: [
-                ['行政體制化', '美國 Class VI 監管權下放', '加速審核流程'], 
-                ['S-Hub 樞紐', '新馬印推動區域儲碳合作', '解決跨國運輸法規'], 
-                ['澳洲 Bonaparte', '獲政府授權重大計畫地位', '年封存量千萬噸級']
-            ] 
-        },
-        { 
-            title: '3. 美國政策轉向', 
-            color: '#ff4d4d', 
-            theme: 'us-theme', 
-            rows: [
-                ['OBBBA 法案', '推動「能源優先」結構轉向', '取消聯邦租賃限制'], 
-                ['補貼削減', '縮減 45V 綠氫等稅收優惠', '重估在美佈局'], 
-                ['資金挪移', '資本從美國轉向歐亞市場', '加速自主供應鏈建設']
-            ] 
-        }
+        { title: '1. SAF 產業化進程', color: '#00f2ff', theme: 'saf-theme', rows: [['印尼', 'UCO 量產', '產業鏈閉環'], ['新加坡', '中央採購', '穩定資助']] },
+        { title: '2. CCS 跨國合作', color: '#00ff88', theme: 'ccs-theme', rows: [['美國', '監管權下放', '加速審核'], ['新馬印', '樞紐合作', '跨國運輸']] },
+        { title: '3. 美國政策轉向', color: '#ff4d4d', theme: 'us-theme', rows: [['OBBBA', '能源優先', '放寬排放費'], ['補貼', '縮減 45V', '資本轉向']] }
     ];
 
     var clickCount = 0;
 
-    // 💡 點擊地球：右邊欄位動、變色、濾鏡
     function handleEarthClick() {
         var idx = clickCount % 3;
         var data = sequence[idx];
 
-        // 1. 顯示右側數據
         document.getElementById('data-container').style.display = 'block';
         document.getElementById('table-title').innerText = data.title;
         document.getElementById('table-title').style.color = data.color;
 
         var rowsHtml = "";
         for (var i = 0; i < data.rows.length; i++) {
-            rowsHtml += '<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">' +
-                        '<td style="color:' + data.color + '; font-weight:bold; width:25%; padding: 12px 5px; vertical-align: top;">' + data.rows[i][0] + '</td>' + 
-                        '<td class="val" style="width:45%; padding: 12px 15px; color: #fff; vertical-align: top;">' + data.rows[i][1] + '</td>' + 
-                        '<td style="font-size:0.85em; opacity:0.7; width:30%; padding: 12px 5px; vertical-align: top;">' + data.rows[i][2] + '</td>' + 
-                        '</tr>';
+            rowsHtml += '<tr><td style="color:'+data.color+'; font-weight:bold;">'+data.rows[i][0]+'</td>' +
+                        '<td style="color:#fff; padding:0 10px;">'+data.rows[i][1]+'</td>' +
+                        '<td style="opacity:0.6; font-size:11px;">'+data.rows[i][2]+'</td></tr>';
         }
         document.getElementById('table-body').innerHTML = rowsHtml;
 
-        // 2. 左側狀態同步（變色）
-        var navItems = document.querySelectorAll('.nav-item');
-        navItems.forEach(item => item.classList.remove('active', 'saf-theme', 'ccs-theme', 'us-theme'));
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active', 'saf-theme', 'ccs-theme', 'us-theme'));
         document.getElementById('nav-' + idx).classList.add('active', data.theme);
         document.getElementById('left-guide').style.color = data.color;
 
-        // 3. 特效切換
-        var container = document.getElementById('spline-container');
         var model = document.getElementById('main-model');
         model.classList.remove('tech-green-filter', 'tech-red-filter');
-        container.classList.remove('blue-floor-bg');
-
         if (idx === 1) model.classList.add('tech-green-filter');
-        else if (idx === 2) {
-            model.classList.add('tech-red-filter');
-            container.classList.add('blue-floor-bg');
-        }
+        if (idx === 2) model.classList.add('tech-red-filter');
 
         clickCount++;
     }
