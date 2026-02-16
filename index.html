@@ -5,124 +5,148 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>國際新能源案例探析</title>
     <style>
-        body { margin: 0; background: #000; color: white; font-family: sans-serif; overflow: hidden; height: 100vh; width: 100vw; }
+        /* 💡 核心佈局：橫向三欄，互不干擾 */
+        body { 
+            margin: 0; background: #000; color: white; 
+            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; 
+            display: flex; height: 100vh; width: 100vw; overflow: hidden;
+        }
 
-        /* 💡 左側：絕對定位，確保不被 3D 擋住 */
+        /* 左側選單區域 */
         #left-panel { 
-            position: absolute; left: 0; top: 0; bottom: 0;
-            width: 300px; background: #000; padding: 40px 20px;
-            border-right: 1px solid #333; z-index: 9999;
+            width: 300px; min-width: 300px; 
+            background: #000; padding: 40px 20px; 
+            border-right: 1px solid #333;
+            display: flex; flex-direction: column; z-index: 10;
         }
 
         .nav-item { 
-            display: block; padding: 20px 15px; margin-bottom: 15px; 
-            background: #111; border: 1px solid #333; border-radius: 10px;
-            cursor: pointer; color: #888; font-size: 16px; 
+            display: block; padding: 18px 15px; margin-bottom: 12px; 
+            background: #111; border: 1px solid #333; border-radius: 8px; 
+            cursor: pointer; color: #888; transition: 0.3s;
             -webkit-tap-highlight-color: transparent;
-            transition: 0.3s ease;
         }
+        .nav-item.active { background: #1a1a1a; }
 
-        /* 💡 中間：固定區域，移除 pointer-events 讓點擊穿透 */
+        /* 中間 3D 區域 */
         #spline-container { 
-            position: absolute; left: 300px; right: 400px; top: 0; bottom: 0;
-            background: #000; overflow: hidden; z-index: 1;
-            pointer-events: none; 
+            flex: 1; position: relative; background: #000; 
+            display: flex; align-items: center; justify-content: center;
         }
         
-        /* 科技發光圈 */
-        #glow-ring {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 350px; height: 350px; border-radius: 50%; z-index: 2;
-            transition: box-shadow 0.5s ease;
+        /* 💡 老招：在地球後方拍一個科技燈光 */
+        #glow-backlight {
+            position: absolute; width: 320px; height: 320px;
+            border-radius: 50%; z-index: 1; pointer-events: none;
+            transition: box-shadow 0.6s ease;
+            /* 預設 SAF 藍色 */
+            box-shadow: 0 0 100px rgba(0, 242, 255, 0.4);
         }
 
-        #main-model { width: 100%; height: 100%; }
+        #main-model { width: 100%; height: 100%; position: relative; z-index: 2; pointer-events: none; }
 
-        /* 💡 右側：固定寬度 */
+        /* 右側數據區域 */
         #right-panel { 
-            position: absolute; right: 0; top: 0; bottom: 0;
-            width: 400px; background: #000; padding: 40px 20px;
-            border-left: 1px solid #333; z-index: 9999;
+            width: 400px; min-width: 400px; 
+            background: #000; padding: 40px 20px; 
+            border-left: 1px solid #333; z-index: 10;
         }
-        
-        #data-box { background: #111; padding: 25px; border-radius: 15px; border: 1px solid #333; }
-        table { width: 100%; border-collapse: collapse; }
-        td { padding: 12px 5px; border-bottom: 1px solid #222; font-size: 13px; vertical-align: top; }
 
-        @media (max-width: 1024px) {
-            #left-panel { width: 250px; }
-            #right-panel { width: 350px; }
-            #spline-container { left: 250px; right: 350px; }
-        }
+        #data-box { background: #111; padding: 25px; border-radius: 12px; border: 1px solid #444; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        td { padding: 12px 5px; border-bottom: 1px solid #222; font-size: 14px; vertical-align: top; }
+
+        h2, h3 { margin: 0; font-weight: 500; }
     </style>
 </head>
 <body>
 
 <div id="left-panel">
-    <h2 style="font-size: 18px; margin-bottom: 30px;">新能源案例探析</h2>
-    <div id="nav-0" onclick="changeCase(0)" ontouchstart="changeCase(0)" class="nav-item"><strong>SAF</strong> 產業化進程</div>
-    <div id="nav-1" onclick="changeCase(1)" ontouchstart="changeCase(1)" class="nav-item"><strong>CCS</strong> 跨國合作</div>
-    <div id="nav-2" onclick="changeCase(2)" ontouchstart="changeCase(2)" class="nav-item"><strong>USA</strong> 政策轉向</div>
+    <h2 style="font-size: 20px; margin-bottom: 30px; letter-spacing: 1px;">新能源案例探析</h2>
+    <div onclick="changeCase(0)" ontouchstart="changeCase(0)" id="nav-0" class="nav-item"><strong>SAF</strong> 產業化進程</div>
+    <div onclick="changeCase(1)" ontouchstart="changeCase(1)" id="nav-1" class="nav-item"><strong>CCS</strong> 跨國合作</div>
+    <div onclick="changeCase(2)" ontouchstart="changeCase(2)" id="nav-2" class="nav-item"><strong>USA</strong> 政策轉向</div>
 </div>
 
 <div id="spline-container">
-    <div id="glow-ring"></div>
+    <div id="glow-backlight"></div>
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.28/build/spline-viewer.js"></script>
     <spline-viewer id="main-model" url="https://prod.spline.design/cE6TgHmxUeFvM0Q3/scene.splinecode"></spline-viewer>
 </div>
 
 <div id="right-panel">
     <div id="data-box">
-        <h3 id="data-title" style="margin:0 0 15px 0; padding-left:10px; border-left:4px solid;"></h3>
-        <table><tbody id="data-table-body"></tbody></table>
+        <h3 id="data-title" style="padding-left:12px; border-left:4px solid;">載入中...</h3>
+        <table>
+            <tbody id="data-table-body">
+                </tbody>
+        </table>
     </div>
 </div>
 
 <script>
     const sequence = [
         { 
-            title: '1. SAF 產業化進程', color: '#00f2ff', glow: 'rgba(0, 242, 255, 0.4)', 
-            rows: [['印尼 Pertamina', 'UCO 廢油量產 / 商業首航', '完成產業鏈閉環'], ['新加坡 SAFCo', '中央採購 / 徵收附加費', '確立區域樞紐'], ['亞太生質煉油', '越馬投入大型煉油廠', '脫碳核心手段']] 
+            title: '1. SAF 產業化進程', color: '#00f2ff', glow: 'rgba(0, 242, 255, 0.45)', 
+            rows: [
+                ['印尼 Pertamina', 'UCO 廢油量產 / 商業首航', '完成產業鏈閉環'], 
+                ['新加坡 SAFCo', '中央採購 / 徵收附加費', '確立區域樞紐'], 
+                ['亞太生質煉油', '越馬投入大型煉油廠', '脫碳核心手段']
+            ] 
         },
         { 
-            title: '2. CCS 跨國合作', color: '#00ff88', glow: 'rgba(0, 255, 136, 0.5)', 
-            rows: [['行政體制化', '美國監管權下放', '加速審核流程'], ['S-Hub 樞紐', '新馬印區域儲碳合作', '共享經濟模式'], ['澳洲 Bonaparte', '獲政府重大地位', '千萬噸級封存']] 
+            title: '2. CCS 跨國合作', color: '#00ff88', glow: 'rgba(0, 255, 136, 0.45)', 
+            rows: [
+                ['行政體制化', '美國監管權下放', '加速審核流程'], 
+                ['S-Hub 樞紐', '新馬印區域儲碳合作', '共享經濟模式'], 
+                ['澳洲 Bonaparte', '獲政府重大地位', '千萬噸級封存']
+            ] 
         },
         { 
-            title: '3. 美國政策轉向', color: '#ff4d4d', glow: 'rgba(255, 77, 77, 0.5)', 
-            rows: [['OBBBA 法案', '能源優先結構轉向', '放寬排放費'], ['補貼削減', '縮減 45V 稅收優惠', '重估在美佈局'], ['資金挪移', '資本轉向歐亞市場', '加速自主供應鏈']] 
+            title: '3. 美國政策轉向', color: '#ff4d4d', glow: 'rgba(255, 77, 77, 0.45)', 
+            rows: [
+                ['OBBBA 法案', '能源優先結構轉向', '放寬排放費'], 
+                ['補貼削減', '縮減 45V 稅收優惠', '重估在美佈局'], 
+                ['資金挪移', '資本轉向歐亞市場', '加速自主供應鏈']
+            ] 
         }
     ];
 
     function changeCase(idx) {
         const data = sequence[idx];
-        
-        // 更新地球後方的科技光暈
-        document.getElementById('glow-ring').style.boxShadow = `0 0 100px ${data.glow}`;
 
-        // 更新標題與顏色
+        // 1. 切換背光顏色
+        document.getElementById('glow-backlight').style.boxShadow = `0 0 100px ${data.glow}`;
+
+        // 2. 更新右側面板
         const titleEl = document.getElementById('data-title');
         titleEl.innerText = data.title;
         titleEl.style.color = data.color;
         titleEl.style.borderColor = data.color;
 
-        // 更新數據表格
         let html = "";
         data.rows.forEach(r => {
-            html += `<tr><td style="color:${data.color};font-weight:bold;width:30%">${r[0]}</td><td style="width:40%">${r[1]}</td><td style="opacity:0.6;font-size:12px">${r[2]}</td></tr>`;
+            html += `<tr>
+                <td style="color:${data.color}; font-weight:bold; width:35%">${r[0]}</td>
+                <td style="width:40%">${r[1]}</td>
+                <td style="opacity:0.6; font-size:12px; text-align:right">${r[2]}</td>
+            </tr>`;
         });
         document.getElementById('data-table-body').innerHTML = html;
 
-        // 更新按鈕高亮狀態
+        // 3. 更新按鈕樣式
         document.querySelectorAll('.nav-item').forEach((item, i) => {
             if (i === idx) {
                 item.classList.add('active');
                 item.style.borderColor = data.color;
                 item.style.color = data.color;
+                item.style.boxShadow = `inset 0 0 10px ${data.glow}`;
             } else {
                 item.classList.remove('active');
                 item.style.borderColor = '#333';
                 item.style.color = '#888';
+                item.style.boxShadow = 'none';
             }
         });
     }
@@ -130,5 +154,6 @@
     // 初始化顯示第一項
     window.onload = () => changeCase(0);
 </script>
+
 </body>
 </html>
