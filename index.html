@@ -8,75 +8,56 @@
         body { 
             margin: 0; background: #000; color: white; 
             font-family: "Microsoft JhengHei", sans-serif; 
-            overflow-x: hidden; overflow-y: auto;
-            display: flex; flex-direction: row; min-height: 100vh;
+            overflow: hidden; /* 防止手機版亂跳 */
+            display: flex; flex-direction: row; height: 100vh;
         }
 
-        /* 手機直式排版修正 */
+        /* 手機直式排版 */
         @media (max-width: 1024px) and (orientation: portrait) {
-            body { flex-direction: column; }
-            #left-panel { width: 100% !important; padding: 20px; box-sizing: border-box; }
-            #spline-container { height: 45vh !important; width: 100% !important; order: -1; }
-            #right-panel { width: 100% !important; padding: 15px; box-sizing: border-box; }
-            #data-container { width: 100%; margin-bottom: 20px; }
+            body { flex-direction: column; overflow-y: auto; }
+            #left-panel { width: 100% !important; padding: 20px; }
+            #spline-container { height: 45vh !important; width: 100% !important; flex: none; }
+            #right-panel { width: 100% !important; padding: 15px; }
         }
 
-        /* 面板基礎設定 */
         #left-panel { width: 300px; z-index: 100; padding: 40px 25px; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; }
-        .nav-group { display: flex; flex-direction: column; gap: 10px; }
-        .nav-item { display: block; text-decoration: none; padding: 18px 15px; background: rgba(255,255,255,0.03); border-radius: 8px; color: rgba(255,255,255,0.4); font-size: 13px; transition: 0.4s; border: 1px solid rgba(255,255,255,0.1); }
-        .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.08); color: #fff; }
+        .nav-item { display: block; text-decoration: none; padding: 18px 15px; background: rgba(255,255,255,0.03); border-radius: 8px; color: rgba(255,255,255,0.4); font-size: 13px; transition: 0.4s; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 10px; cursor: pointer; }
+        .nav-item.active { color: #fff; background: rgba(255,255,255,0.08); }
         
+        /* 導覽列邊框顏色 */
         .nav-item.active.saf-theme { border-color: #00f2ff; box-shadow: 0 0 15px rgba(0, 242, 255, 0.3); }
         .nav-item.active.ccs-theme { border-color: #00ff88; box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); }
         .nav-item.active.us-theme { border-color: #ff4d4d; box-shadow: 0 0 15px rgba(255, 77, 77, 0.3); }
 
-        #spline-container { flex: 1; position: relative; z-index: 10; display: flex; justify-content: center; align-items: center; min-height: 400px; }
-        #main-model { width: 100%; height: 100%; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; }
+        #spline-container { flex: 1; position: relative; background: #000; display: flex; justify-content: center; align-items: center; }
+        #main-model { width: 100%; height: 100%; transition: filter 0.6s ease; pointer-events: none; }
 
-        /* 💡 深度優化的科技感濾鏡 */
-        /* 科技水藍 */
-        .filter-blue { 
-            filter: brightness(1.2) saturate(1.8) drop-shadow(0 0 25px rgba(0, 242, 255, 0.5)) !important; 
-        }
-        /* 極客螢光綠 */
-        .filter-green { 
-            filter: hue-rotate(95deg) brightness(1.6) saturate(3) contrast(1.2) drop-shadow(0 0 30px rgba(0, 255, 136, 0.6)) !important;
-            -webkit-filter: hue-rotate(95deg) brightness(1.6) saturate(3) contrast(1.2) drop-shadow(0 0 30px rgba(0, 255, 136, 0.6));
-        }
-        /* 警示科技紅 */
-        .filter-red { 
-            filter: hue-rotate(305deg) brightness(1.4) saturate(3.5) contrast(1.1) drop-shadow(0 0 30px rgba(255, 77, 77, 0.6)) !important;
-            -webkit-filter: hue-rotate(305deg) brightness(1.4) saturate(3.5) contrast(1.1) drop-shadow(0 0 30px rgba(255, 77, 77, 0.6));
-        }
+        /* 💡 修正顏色：確保背景不噴色，地球有發光感 */
+        .filter-blue { filter: brightness(1.2) saturate(1.2) !important; }
+        .filter-green { filter: sepia(100%) hue-rotate(90deg) saturate(500%) brightness(1.1) drop-shadow(0 0 20px #00ff88) !important; }
+        .filter-red { filter: sepia(100%) hue-rotate(-50deg) saturate(600%) brightness(1.1) drop-shadow(0 0 20px #ff4d4d) !important; }
 
-        #right-panel { width: 350px; z-index: 100; padding: 20px; display: flex; flex-direction: column; }
-        #data-container { display: none; background: rgba(10, 15, 25, 0.95); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(15px); animation: fadeIn 0.4s ease; }
+        #right-panel { width: 350px; z-index: 100; padding: 20px; }
+        #data-container { display: none; background: rgba(10, 15, 25, 0.95); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(15px); }
         
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
         table { width: 100%; border-collapse: collapse; }
-        td { padding: 12px 5px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
-        
-        #touch-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; cursor: pointer; }
+        td { padding: 12px 5px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+        #touch-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 150; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div id="left-panel">
-        <div class="nav-group">
-            <h1 style="font-size: 20px; margin-bottom: 5px;">國際新能源案例探析</h1>
-            <div id="left-guide" style="color:#00f2ff; font-size:12px; margin-bottom:15px;">＊ 點擊地球切換主題</div>
-            <a href="javascript:void(0)" onclick="handleManualClick(0)" id="nav-0" class="nav-item"><strong>SAF</strong> 產業鏈建立</a>
-            <a href="javascript:void(0)" onclick="handleManualClick(1)" id="nav-1" class="nav-item"><strong>CCS</strong> 跨境樞紐</a>
-            <a href="javascript:void(0)" onclick="handleManualClick(2)" id="nav-2" class="nav-item"><strong>USA</strong> 政策風險</a>
-        </div>
+        <h1 style="font-size: 20px; margin-bottom: 5px;">國際新能源案例探析</h1>
+        <div style="color:#00f2ff; font-size:12px; margin-bottom:15px;">＊ 點擊下方或點擊地球切換</div>
+        <div onclick="handleManualClick(0)" id="nav-0" class="nav-item"><strong>SAF</strong> 產業鏈建立</div>
+        <div onclick="handleManualClick(1)" id="nav-1" class="nav-item"><strong>CCS</strong> 跨境樞紐</div>
+        <div onclick="handleManualClick(2)" id="nav-2" class="nav-item"><strong>USA</strong> 政策風險</div>
     </div>
 
     <div id="spline-container">
         <div id="touch-overlay" onclick="handleEarthClick()"></div>
-        <div style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 60; color: #fff; font-size: 12px; background: rgba(0,0,0,0.6); padding: 5px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); pointer-events: none;">＊ 點擊地球切換數據摘要</div>
-        
         <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.28/build/spline-viewer.js"></script>
         <spline-viewer id="main-model" url="https://prod.spline.design/cE6TgHmxUeFvM0Q3/scene.splinecode"></spline-viewer>
     </div>
@@ -88,7 +69,7 @@
         </div>
     </div>
 
-   <script>
+    <script>
     var sequence = [
         { title: '1. SAF 產業化', color: '#00f2ff', theme: 'saf-theme', filter: 'filter-blue', rows: [['印尼 Pertamina', 'UCO量產', '國際認證'], ['新加坡 SAFCo', '徵收附加費', '區域樞紐']] },
         { title: '2. CCS 跨國合作', color: '#00ff88', theme: 'ccs-theme', filter: 'filter-green', rows: [['行政體制化', '監管權下放', '加速審核'], ['S-Hub 樞紐', '新馬印合作', '共享模式']] },
@@ -100,12 +81,11 @@
     function handleManualClick(index) {
         clickCount = index;
         updateDisplay();
-        clickCount++; // 同步點擊計數
     }
 
     function handleEarthClick() {
         updateDisplay();
-        clickCount++;
+        clickCount++; // 地球點擊後進入下一項
     }
 
     function updateDisplay() {
@@ -115,16 +95,12 @@
         
         document.getElementById('data-container').style.display = 'block';
         
-        // 移除所有濾鏡
+        // 修正：徹底清除之前的 Class 確保 filter 不疊加
         model.classList.remove('filter-blue', 'filter-green', 'filter-red');
-        
-        // 強制重繪
-        void model.offsetWidth; 
-
-        // 套用強化後的科技濾鏡
+        void model.offsetWidth; // 強制重繪
         model.classList.add(data.filter);
 
-        // UI 更新
+        // 更新 UI
         var titleEl = document.getElementById('table-title');
         titleEl.innerText = data.title;
         titleEl.style.color = data.color;
@@ -145,6 +121,12 @@
             if(i === idx) nav.classList.add('active', data.theme);
         });
     }
+
+    // 初始執行一次
+    window.onload = () => {
+        // 如果想一進網頁就顯示 SAF，可以解除註解：
+        // updateDisplay();
+    };
     </script>
 </body>
 </html>
