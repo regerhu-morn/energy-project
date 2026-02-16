@@ -7,137 +7,120 @@
     <style>
         body { 
             margin: 0; background: #000; color: white; 
-            font-family: "Microsoft JhengHei", sans-serif; 
-            overflow: hidden; display: flex; flex-direction: row; height: 100vh;
+            font-family: -apple-system, "Microsoft JhengHei", sans-serif; 
+            overflow: hidden; display: flex; height: 100vh;
         }
 
-        /* 手機直式排版修正 */
-        @media (max-width: 1024px) {
-            body { flex-direction: column; overflow-y: auto; }
-            #left-panel { width: 100% !important; height: auto !important; padding: 20px !important; z-index: 500 !important; }
-            #spline-container { height: 45vh !important; width: 100% !important; flex: none; }
-            #right-panel { width: 100% !important; padding: 15px; z-index: 100; }
+        /* 💡 核心修正 1：提升分頁層級，確保 iPad 點得到 */
+        #left-panel { 
+            width: 300px; z-index: 9999; padding: 30px; 
+            background: rgba(0,0,0,0.9); position: relative; 
         }
-
-        /* 左側導覽列 - 確保層級最高以利點擊 */
-        #left-panel { width: 300px; z-index: 500; padding: 40px 25px; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; position: relative; }
         .nav-item { 
-            display: block; padding: 18px 15px; background: rgba(255,255,255,0.03); 
-            border-radius: 8px; color: rgba(255,255,255,0.4); font-size: 13px; 
-            transition: 0.4s; border: 1px solid rgba(255,255,255,0.1); 
-            margin-bottom: 10px; cursor: pointer; position: relative; z-index: 510;
+            display: block; padding: 20px 15px; margin-bottom: 12px; 
+            background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px; cursor: pointer; color: #aaa; 
+            font-size: 16px; transition: 0.3s;
+            -webkit-tap-highlight-color: transparent; /* 移除 iPad 點擊陰影 */
         }
-        .nav-item.active { color: #fff; background: rgba(255,255,255,0.1); }
+        .nav-item.active { color: #fff; background: rgba(255,255,255,0.15); }
+
+        /* 💡 核心修正 2：解決顏色相反問題，改用最穩定的 Overlay 模式 */
+        #spline-container { flex: 1; position: relative; background: #000; overflow: hidden; }
         
-        /* 導覽列啟動狀態邊框 */
-        .nav-item.active.saf-theme { border-color: #00f2ff; box-shadow: 0 0 15px rgba(0, 242, 255, 0.3); }
-        .nav-item.active.ccs-theme { border-color: #00ff88; box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); }
-        .nav-item.active.us-theme { border-color: #ff4d4d; box-shadow: 0 0 15px rgba(255, 77, 77, 0.3); }
-
-        /* 3D 容器 */
-        #spline-container { flex: 1; position: relative; background: #000; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-        #main-model { width: 100%; height: 100%; pointer-events: none; }
-
-        /* 💡 科技色感遮罩：解決顏色相反與背景變色問題 */
         #color-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 20; pointer-events: none;
-            mix-blend-mode: screen; /* 只讓有光影的部分變色，黑色背景不變 */
+            z-index: 50; pointer-events: none; /* 穿透點擊 */
+            mix-blend-mode: screen; /* 只染亮部，不染黑底 */
             transition: background 0.6s ease;
         }
 
-        .bg-blue { background: rgba(0, 242, 255, 0.45); }
-        .bg-green { background: rgba(0, 255, 136, 0.5); }
-        .bg-red { background: rgba(255, 77, 77, 0.5); }
+        /* 科技調色盤 */
+        .tech-blue { background: rgba(0, 242, 255, 0.45); }
+        .tech-green { background: rgba(0, 255, 136, 0.55); }
+        .tech-red { background: rgba(255, 77, 77, 0.55); }
 
-        /* 右側數據面板 */
-        #right-panel { width: 350px; z-index: 100; padding: 20px; }
-        #data-container { display: none; background: rgba(10, 15, 25, 0.95); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(15px); }
-        
-        table { width: 100%; border-collapse: collapse; }
-        td { padding: 12px 5px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        #main-model { width: 100%; height: 100%; pointer-events: none; }
 
-        /* 地球點擊穿透層 */
-        #touch-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 150; cursor: pointer; }
+        /* 💡 核心修正 3：iPad 地球點擊專用層 */
+        #touch-trigger { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            z-index: 100; cursor: pointer; 
+        }
+
+        #right-panel { width: 350px; padding: 20px; z-index: 100; }
+        #data-box { display: none; background: rgba(25,25,30,0.95); padding: 25px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); }
+
+        /* iPad / 手機直向排版 */
+        @media (max-width: 1024px) {
+            body { flex-direction: column; overflow-y: auto; }
+            #left-panel { width: 100%; height: auto; padding: 20px; }
+            #spline-container { height: 45vh; flex: none; }
+            #right-panel { width: 100%; padding: 15px; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="left-panel">
-        <h1 style="font-size: 20px; margin-bottom: 5px;">國際新能源案例探析</h1>
-        <div style="color:#00f2ff; font-size:12px; margin-bottom:15px;">＊ 點擊按鈕或地球切換</div>
-        <div onclick="handleManualClick(0)" id="nav-0" class="nav-item"><strong>SAF</strong> 產業鏈建立</div>
-        <div onclick="handleManualClick(1)" id="nav-1" class="nav-item"><strong>CCS</strong> 跨境樞紐</div>
-        <div onclick="handleManualClick(2)" id="nav-2" class="nav-item"><strong>USA</strong> 政策風險</div>
-    </div>
+<div id="left-panel">
+    <h2 style="margin-bottom:20px;">新能源案例</h2>
+    <div onclick="updateAll(0)" id="nav-0" class="nav-item"><strong>SAF</strong> 產業鏈建立</div>
+    <div onclick="updateAll(1)" id="nav-1" class="nav-item"><strong>CCS</strong> 跨境樞紐</div>
+    <div onclick="updateAll(2)" id="nav-2" class="nav-item"><strong>USA</strong> 政策風險</div>
+</div>
 
-    <div id="spline-container">
-        <div id="color-overlay" class="bg-blue"></div>
-        <div id="touch-overlay" onclick="handleEarthClick()"></div>
-        
-        <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.28/build/spline-viewer.js"></script>
-        <spline-viewer id="main-model" url="https://prod.spline.design/cE6TgHmxUeFvM0Q3/scene.splinecode"></spline-viewer>
-    </div>
+<div id="spline-container">
+    <div id="color-overlay" class="tech-blue"></div>
+    <div id="touch-trigger" onclick="nextStep()"></div>
+    
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.28/build/spline-viewer.js"></script>
+    <spline-viewer id="main-model" url="https://prod.spline.design/cE6TgHmxUeFvM0Q3/scene.splinecode"></spline-viewer>
+</div>
 
-    <div id="right-panel">
-        <div id="data-container">
-            <div id="table-title" style="font-weight:bold; margin-bottom:10px; border-left:4px solid; padding-left:10px;"></div>
-            <table><tbody id="table-body"></tbody></table>
-        </div>
+<div id="right-panel">
+    <div id="data-box">
+        <h3 id="d-title" style="border-left: 5px solid; padding-left: 12px;"></h3>
+        <p id="d-info" style="line-height: 1.6; opacity: 0.9;"></p>
     </div>
+</div>
 
-    <script>
-    var sequence = [
-        { title: '1. SAF 產業化', color: '#00f2ff', theme: 'saf-theme', bgClass: 'bg-blue', rows: [['印尼 Pertamina', 'UCO量產', '國際認證'], ['新加坡 SAFCo', '徵收附加費', '區域樞紐']] },
-        { title: '2. CCS 跨國合作', color: '#00ff88', theme: 'ccs-theme', bgClass: 'bg-green', rows: [['行政體制化', '監管權下放', '加速審核'], ['S-Hub 樞紐', '新馬印合作', '共享模式']] },
-        { title: '3. 美國政策轉向', color: '#ff4d4d', theme: 'us-theme', bgClass: 'bg-red', rows: [['OBBBA 法案', '結構轉向', '能源優先'], ['補貼削減', '45V綠氫縮減', '重估佈局']] }
+<script>
+    const dataList = [
+        { name: '1. SAF 產業化', color: '#00f2ff', bg: 'tech-blue', txt: '印尼 Pertamina 實現 UCO 量產。' },
+        { name: '2. CCS 跨境合作', color: '#00ff88', bg: 'tech-green', txt: '新馬印合作 S-Hub 樞紐模式。' },
+        { name: '3. 美國政策轉向', color: '#ff4d4d', bg: 'tech-red', txt: 'OBBBA 法案結構轉向，能源優先。' }
     ];
 
-    var clickCount = 0;
+    let count = 0;
 
-    function handleManualClick(index) {
-        clickCount = index;
-        updateDisplay();
-    }
+    function updateAll(idx) {
+        count = idx;
+        const item = dataList[count];
 
-    function handleEarthClick() {
-        clickCount++; // 點擊地球進入下一項
-        updateDisplay();
-    }
+        // 1. 換色 (使用 Overlay 方案，背景絕不反色) [cite: 2026-02-10]
+        document.getElementById('color-overlay').className = item.bg;
 
-    function updateDisplay() {
-        var idx = clickCount % 3;
-        var data = sequence[idx];
-        
-        // 1. 顯示數據容器
-        document.getElementById('data-container').style.display = 'block';
-        
-        // 2. 更新顏色遮罩 (取代不穩定的 filter)
-        var overlay = document.getElementById('color-overlay');
-        overlay.className = data.bgClass;
+        // 2. 換資料
+        document.getElementById('data-box').style.display = 'block';
+        const title = document.getElementById('d-title');
+        title.innerText = item.name;
+        title.style.color = item.color;
+        title.style.borderColor = item.color;
+        document.getElementById('d-info').innerText = item.txt;
 
-        // 3. 更新數據內容
-        var titleEl = document.getElementById('table-title');
-        titleEl.innerText = data.title;
-        titleEl.style.color = data.color;
-        titleEl.style.borderColor = data.color;
-
-        var rowsHtml = "";
-        data.rows.forEach(row => {
-            rowsHtml += `<tr>
-                <td style="color:${data.color}; font-weight:bold; width:35%;">${row[0]}</td>
-                <td style="width:35%;">${row[1]}</td>
-                <td style="opacity:0.6; width:30%;">${row[2]}</td>
-            </tr>`;
-        });
-        document.getElementById('table-body').innerHTML = rowsHtml;
-
-        // 4. 更新按鈕啟動狀態
-        document.querySelectorAll('.nav-item').forEach((nav, i) => {
-            nav.classList.remove('active', 'saf-theme', 'ccs-theme', 'us-theme');
-            if(i === idx) nav.classList.add('active', data.theme);
+        // 3. 換按鈕樣式
+        document.querySelectorAll('.nav-item').forEach((btn, i) => {
+            btn.classList.toggle('active', i === idx);
+            btn.style.borderColor = (i === idx) ? item.color : 'rgba(255,255,255,0.1)';
+            btn.style.color = (i === idx) ? item.color : '#aaa';
         });
     }
-    </script>
+
+    function nextStep() {
+        count = (count + 1) % 3;
+        updateAll(count);
+    }
+</script>
+
 </body>
 </html>
