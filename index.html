@@ -8,74 +8,53 @@
         body { 
             margin: 0; background: #000; color: white; 
             font-family: "Microsoft JhengHei", sans-serif; 
-            overflow-x: hidden; 
-            overflow-y: auto;
-            display: flex; 
-            flex-direction: row;
-            min-height: 100vh;
+            overflow-x: hidden; overflow-y: auto;
+            display: flex; flex-direction: row; min-height: 100vh;
         }
 
-        @media (max-width: 1024px) {
+        /* 📱 針對手機「直式」：上下排列 */
+        @media (max-width: 1024px) and (orientation: portrait) {
             body { flex-direction: column; }
-            #left-panel, #right-panel { width: 100% !important; box-sizing: border-box; flex: none; }
+            #left-panel { width: 100% !important; padding: 20px; box-sizing: border-box; }
             #spline-container { height: 45vh !important; width: 100% !important; order: -1; }
-            #right-panel { padding-bottom: 50px; }
+            #right-panel { width: 100% !important; padding: 15px; box-sizing: border-box; }
+            #data-container { width: 100%; margin-bottom: 50px; }
         }
 
-        #left-panel { 
-            width: 300px; z-index: 100; padding: 40px 25px; 
-            background: linear-gradient(to right, rgba(0,0,0,1) 70%, rgba(0,0,0,0)); 
-            display: flex; flex-direction: column; 
+        /* 📱 針對手機「橫式」：左右排列並縮小比例 */
+        @media (max-width: 932px) and (orientation: landscape) {
+            body { flex-direction: row; }
+            #left-panel { width: 180px !important; padding: 15px; }
+            #left-panel h1 { font-size: 16px !important; }
+            .nav-item { padding: 8px !important; font-size: 11px !important; }
+            #spline-container { flex: 1; height: 100vh !important; }
+            #right-panel { width: 280px !important; padding: 10px; }
+            #data-container { padding: 10px; font-size: 11px; }
+            .guide-center-top { top: 10px; font-size: 10px; }
         }
 
-        .guide-top-left {
-            color: #00f2ff; font-size: 13px; font-weight: bold; letter-spacing: 1px;
-            margin-bottom: 15px; text-shadow: 0 0 10px rgba(0, 242, 255, 0.8);
-        }
-
+        /* 面板基礎設定 */
+        #left-panel { width: 300px; z-index: 100; padding: 40px 25px; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; }
+        .guide-top-left { color: #00f2ff; font-size: 13px; font-weight: bold; margin-bottom: 15px; text-shadow: 0 0 10px rgba(0, 242, 255, 0.8); }
         .nav-group { display: flex; flex-direction: column; gap: 10px; }
-
-        .nav-item { 
-            display: block; text-decoration: none;
-            padding: 18px 15px; background: rgba(255,255,255,0.03); 
-            border-radius: 8px; color: rgba(255,255,255,0.4); 
-            font-size: 13px; transition: 0.4s; border: 1px solid rgba(255,255,255,0.1); 
-            position: relative;
-        }
-        
+        .nav-item { display: block; text-decoration: none; padding: 18px 15px; background: rgba(255,255,255,0.03); border-radius: 8px; color: rgba(255,255,255,0.4); font-size: 13px; transition: 0.4s; border: 1px solid rgba(255,255,255,0.1); }
         .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.08); color: #fff; }
         .nav-item.active.saf-theme { border-color: #00f2ff; box-shadow: 0 0 15px rgba(0, 242, 255, 0.3); }
         .nav-item.active.ccs-theme { border-color: #00ff88; box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); }
         .nav-item.active.us-theme { border-color: #ff4d4d; box-shadow: 0 0 15px rgba(255, 77, 77, 0.3); }
 
-        #spline-container { 
-            flex: 1; position: relative; z-index: 10; 
-            display: flex; justify-content: center; align-items: center; 
-            min-height: 400px;
-        }
-        
+        #spline-container { flex: 1; position: relative; z-index: 10; display: flex; justify-content: center; align-items: center; min-height: 400px; cursor: pointer; }
         #main-model { width: 100%; height: 100%; transition: filter 0.5s ease; }
+        .guide-center-top { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 150; color: #fff; font-size: 12px; background: rgba(0,0,0,0.6); padding: 5px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); pointer-events: none; }
 
-        .guide-center-top {
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 150; color: #fff; font-size: 12px; white-space: nowrap;
-            background: rgba(0,0,0,0.6); padding: 5px 15px; border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.2); pointer-events: none;
-        }
-
-        #right-panel { width: 350px; z-index: 100; padding: 20px; display: flex; flex-direction: column; justify-content: flex-start; }
-        #data-container { 
-            display: none; background: rgba(10, 15, 25, 0.95); border-radius: 15px; 
-            padding: 20px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(15px); 
-        }
-
-        table { width: 100%; font-size: 12px; border-collapse: collapse; }
+        #right-panel { width: 350px; z-index: 100; padding: 20px; display: flex; flex-direction: column; }
+        #data-container { display: none; background: rgba(10, 15, 25, 0.95); border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(15px); }
+        table { width: 100%; border-collapse: collapse; }
         td { padding: 12px 5px; border-bottom: 1px solid rgba(255,255,255,0.05); }
 
-        /* 💡 修正後的濾鏡：解決紫色與跑色問題 */
+        /* 💡 濾鏡修正：確保 CCS 鮮綠，USA 科技紅 */
         .tech-green-filter { filter: hue-rotate(145deg) brightness(1.2) saturate(2.5) !important; }
-        .tech-red-filter { filter: hue-rotate(280deg) brightness(1.2) saturate(3) !important; }
-
+        .tech-red-filter { filter: hue-rotate(285deg) brightness(1.2) saturate(3) !important; }
     </style>
 </head>
 <body>
@@ -91,7 +70,7 @@
     </div>
 
     <div id="spline-container" onclick="handleEarthClick()">
-        <div class="guide-center-top">＊ 點擊地球切換 CCS / SAF 摘要表</div>
+        <div class="guide-center-top">＊ 點擊地球切換數據摘要</div>
         <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.28/build/spline-viewer.js"></script>
         <spline-viewer id="main-model" url="https://prod.spline.design/cE6TgHmxUeFvM0Q3/scene.splinecode"></spline-viewer>
     </div>
@@ -115,16 +94,14 @@
     function handleEarthClick() {
         var idx = clickCount % 3;
         var data = sequence[idx];
-        var container = document.getElementById('data-container');
         var model = document.getElementById('main-model');
         
-        container.style.display = 'block';
+        document.getElementById('data-container').style.display = 'block';
         
-        // 徹底清除濾鏡防止顏色疊加
-        model.style.filter = 'none';
+        // 清除濾鏡
         model.classList.remove('tech-green-filter', 'tech-red-filter');
         
-        // 強制重繪延遲（確保濾鏡能乾淨切換）
+        // 延遲套用確保顏色更新
         setTimeout(() => {
             if (idx === 1) model.classList.add('tech-green-filter');
             if (idx === 2) model.classList.add('tech-red-filter');
@@ -138,9 +115,9 @@
         var rowsHtml = "";
         data.rows.forEach(row => {
             rowsHtml += `<tr>
-                <td style="color:${data.color}; font-weight:bold; width:30%;">${row[0]}</td>
+                <td style="color:${data.color}; font-weight:bold; width:35%;">${row[0]}</td>
                 <td style="width:35%;">${row[1]}</td>
-                <td style="opacity:0.6; width:35%;">${row[2]}</td>
+                <td style="opacity:0.6; width:30%;">${row[2]}</td>
             </tr>`;
         });
         document.getElementById('table-body').innerHTML = rowsHtml;
