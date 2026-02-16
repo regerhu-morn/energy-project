@@ -5,81 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>國際新能源案例探析</title>
     <style>
-        :root {
-            --bg-dark: #050505; /* 稍微深一點提升 3D 對比 */
-            --card-bg: #121212;
-            --border-line: #333;
-        }
-
+        :root { --bg-dark: #050505; --card-bg: #121212; --border-line: #333; }
         body { 
             margin: 0; background: var(--bg-dark); color: white; 
             font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; 
-            overflow: hidden;
-            display: grid; 
-            grid-template-columns: 300px 1fr 400px; /* 寬度微調確保 iPad 不擠壓 */
+            overflow: hidden; display: grid; 
+            grid-template-columns: 300px 1fr 400px; 
             width: 100vw; height: 100vh;
         }
 
-        /* --- 左側面板 --- */
-        #left-panel { 
-            z-index: 2000; padding: 50px 25px; 
-            background: var(--bg-dark); border-right: 1px solid var(--border-line);
-            display: flex; flex-direction: column; 
-            pointer-events: auto;
+        /* 提升面板層級，確保電腦與平板都能點到按鈕 */
+        #left-panel, #right-panel { 
+            position: relative; z-index: 50; 
+            background: var(--bg-dark); padding: 50px 25px;
+            pointer-events: auto; /* 💡 重要：確保滑鼠點得到 */
         }
+        #left-panel { border-right: 1px solid var(--border-line); }
+        #right-panel { border-left: 1px solid var(--border-line); }
 
         .nav-item { 
             display: block; padding: 22px 18px; background: var(--card-bg); 
             border-radius: 12px; color: rgba(255,255,255,0.35); 
-            font-size: 15px; transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); 
-            border: 1px solid var(--border-line); 
+            font-size: 15px; transition: 0.3s; border: 1px solid var(--border-line); 
             cursor: pointer; margin-bottom: 16px;
             -webkit-tap-highlight-color: transparent;
         }
         
-        /* 💡 顏色搞定：選中時的高亮與發光 */
-        .nav-item.active.saf-theme { border-color: #00f2ff; color: #00f2ff; box-shadow: 0 0 20px rgba(0, 242, 255, 0.25); }
-        .nav-item.active.ccs-theme { border-color: #00ff88; color: #00ff88; box-shadow: 0 0 20px rgba(0, 255, 136, 0.25); }
-        .nav-item.active.us-theme { border-color: #ff4d4d; color: #ff4d4d; box-shadow: 0 0 20px rgba(255, 77, 77, 0.25); }
+        /* 顏色高亮 */
+        .nav-item.active.saf-theme { border-color: #00f2ff; color: #00f2ff; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); }
+        .nav-item.active.ccs-theme { border-color: #00ff88; color: #00ff88; box-shadow: 0 0 20px rgba(0, 255, 136, 0.2); }
+        .nav-item.active.us-theme { border-color: #ff4d4d; color: #ff4d4d; box-shadow: 0 0 20px rgba(255, 77, 77, 0.2); }
 
-        /* --- 中央 3D 區域 --- */
-        #spline-container { position: relative; z-index: 1; background: #000; overflow: hidden; }
+        /* 中央 3D 區 */
+        #spline-container { position: relative; z-index: 1; overflow: hidden; }
         
-        #touch-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 500; cursor: pointer; background: rgba(0,0,0,0);
-            pointer-events: auto; 
-        }
+        /* 💡 修正：移除會擋住滑鼠的透明層，改用全螢幕監聽或按鈕點擊 */
+        #main-model { width: 100%; height: 100%; }
 
         #glow-backlight {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 450px; height: 450px; border-radius: 50%; z-index: 0;
+            width: 450px; height: 450px; border-radius: 50%; z-index: -1;
             transition: box-shadow 0.8s ease; opacity: 0.5;
         }
 
-        #main-model { width: 100%; height: 100%; pointer-events: none; }
-
-        /* --- 右側數據面板 --- */
-        #right-panel { 
-            z-index: 2000; padding: 50px 25px; 
-            border-left: 1px solid var(--border-line); 
-            background: var(--bg-dark); 
-        }
-        
         #data-container { 
             background: var(--card-bg); border-radius: 16px; padding: 30px; 
-            border: 1px solid #444; min-height: 300px;
-            transition: all 0.5s ease;
+            border: 1px solid #444; min-height: 300px; transition: 0.4s;
         }
         
         .table-title { font-size: 20px; font-weight: bold; margin-bottom: 30px; border-left: 6px solid; padding-left: 15px; }
         table { width: 100%; font-size: 14px; color: #ccc; border-collapse: collapse; }
-        td { padding: 18px 0; border-bottom: 1px solid #282828; vertical-align: top; line-height: 1.5; }
+        td { padding: 18px 0; border-bottom: 1px solid #282828; vertical-align: top; }
         .val { color: #fff; font-weight: bold; padding: 0 12px; }
 
         @media (max-width: 1024px) {
             body { grid-template-columns: 250px 1fr 320px; }
-            .nav-item { font-size: 13px; }
         }
     </style>
 </head>
@@ -87,16 +67,15 @@
 
     <div id="left-panel">
         <h1 style="font-size: 24px; margin-bottom: 8px;">能源案例探析</h1>
-        <div style="font-size:12px; color: #555; margin-bottom:35px; letter-spacing: 2px;">CASE ANALYSIS HUB</div>
+        <div style="font-size:12px; color: #555; margin-bottom:35px;">CASE ANALYSIS HUB</div>
         <div class="nav-group">
-            <div id="nav-0" onclick="updateUI(0, event)" class="nav-item"><strong>SAF</strong> 產業化進程</div>
-            <div id="nav-1" onclick="updateUI(1, event)" class="nav-item"><strong>CCS</strong> 跨國合作</div>
-            <div id="nav-2" onclick="updateUI(2, event)" class="nav-item"><strong>USA</strong> 政策轉向</div>
+            <div id="nav-0" onclick="updateUI(0)" class="nav-item"><strong>SAF</strong> 產業化進程</div>
+            <div id="nav-1" onclick="updateUI(1)" class="nav-item"><strong>CCS</strong> 跨國合作</div>
+            <div id="nav-2" onclick="updateUI(2)" class="nav-item"><strong>USA</strong> 政策轉向</div>
         </div>
     </div>
 
-    <div id="spline-container">
-        <div id="touch-overlay" onclick="nextCase()"></div>
+    <div id="spline-container" onclick="nextCase()">
         <div id="glow-backlight"></div>
         <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.28/build/spline-viewer.js"></script>
         <spline-viewer id="main-model" url="https://prod.spline.design/cE6TgHmxUeFvM0Q3/scene.splinecode"></spline-viewer>
@@ -110,56 +89,49 @@
     </div>
 
    <script>
-    // 💡 已整合你最新的數據大綱
+    // 數據大綱 [cite: 2026-01-31]
     var sequence = [
-        { 
-            title: '1. SAF 產業化進程', 
-            color: '#00f2ff', 
-            theme: 'saf-theme', 
-            glow: 'rgba(0, 242, 255, 0.5)',
-            rows: [
-                ['印尼 Pertamina', 'UCO 廢油量產 / 商業首航', '完成產業鏈閉環，取得認證'], 
-                ['新加坡 SAFCo', '中央採購 / 徵收附加費', '建立穩定機制，確立區域樞紐'], 
-                ['亞太生質煉油', '越馬投入大型煉油廠', 'SAF 成為區域脫碳核心手段']
-            ] 
-        },
-        { 
-            title: '2. CCS 跨國合作', 
-            color: '#00ff88', 
-            theme: 'ccs-theme', 
-            glow: 'rgba(0, 255, 136, 0.5)',
-            rows: [
-                ['行政體制化', '美國 Class VI 監管下放', '加速審核，降低法規風險'], 
-                ['S-Hub 樞紐', '新馬印區域儲碳合作', '解決跨境法規，共享模式'], 
-                ['澳洲 Bonaparte', '獲重大計畫地位', '千萬噸級封存，支撐減碳']
-            ] 
-        },
-        { 
-            title: '3. 美國政策轉向', 
-            color: '#ff4d4d', 
-            theme: 'us-theme', 
-            glow: 'rgba(255, 77, 77, 0.5)',
-            rows: [
-                ['OBBBA 法案', '推動「能源優先」轉向', '取消租賃限制，放寬排放費'], 
-                ['補貼削減', '縮減 45V 稅收優惠', '引發全球投資重估在美佈局'], 
-                ['資金挪移', '資本從美轉向歐亞市場', '亞洲加速自主供應鏈建設']
-            ] 
-        }
+        { title: '1. SAF 產業化進程', color: '#00f2ff', theme: 'saf-theme', glow: 'rgba(0, 242, 255, 0.5)', rows: [['印尼 Pertamina', 'UCO 廢油量產 / 商業首航', '完成產業鏈閉環'], ['新加坡 SAFCo', '中央採購 / 徵收附加費', '確立區域樞紐'], ['亞太生質煉油', '越馬投入大型煉油廠', '脫碳核心手段']] },
+        { title: '2. CCS 跨國合作', color: '#00ff88', theme: 'ccs-theme', glow: 'rgba(0, 255, 136, 0.5)', rows: [['行政體制化', '美國 Class VI 監管下放', '加速審核流程'], ['S-Hub 樞紐', '新馬印區域儲碳合作', '共享經濟模式'], ['澳洲 Bonaparte', '獲重大計畫地位', '千萬噸級封存']] },
+        { title: '3. 美國政策轉向', color: '#ff4d4d', theme: 'us-theme', glow: 'rgba(255, 77, 77, 0.5)', rows: [['OBBBA 法案', '推動「能源優先」轉向', '取消租賃限制'], ['補貼削減', '縮減 45V 稅收優惠', '重估在美佈局'], ['資金挪移', '資本從美轉向歐亞市場', '亞洲加速自主鏈']] }
     ];
 
-    var clickCount = 0; // 追蹤點擊次數
+    var currentIdx = 0;
 
-    function updateUI(idx, event) {
-        if (event) event.stopPropagation(); // 防止 iPad 點擊穿透到背景地球
-        
-        clickCount = idx; // 同步點擊索引
+    function updateUI(idx) {
+        currentIdx = idx;
         var data = sequence[idx];
-
-        // 視覺過場效果
         const container = document.getElementById('data-container');
+        
         container.style.opacity = 0;
-        container.style.transform = "translateY(10px)";
-
+        
         setTimeout(() => {
             document.getElementById('table-title').innerText = data.title;
-            document.getElementById('table-title').style.color = data
+            document.getElementById('table-title').style.color = data.color;
+            document.getElementById('table-title').style.borderColor = data.color;
+
+            var rowsHtml = "";
+            data.rows.forEach(r => {
+                rowsHtml += `<tr><td style="color:${data.color}; font-weight:bold; width:30%">${r[0]}</td><td class="val" style="width:40%">${r[1]}</td><td style="font-size:11px; opacity:0.5; width:30%">${r[2]}</td></tr>`;
+            });
+            document.getElementById('table-body').innerHTML = rowsHtml;
+
+            document.querySelectorAll('.nav-item').forEach((item, i) => {
+                item.className = 'nav-item'; 
+                if(i === idx) item.classList.add('active', data.theme);
+            });
+
+            document.getElementById('glow-backlight').style.boxShadow = `0 0 180px ${data.glow}`;
+            container.style.opacity = 1;
+        }, 100);
+    }
+
+    function nextCase() {
+        currentIdx = (currentIdx + 1) % sequence.length;
+        updateUI(currentIdx);
+    }
+
+    window.onload = () => updateUI(0);
+   </script>
+</body>
+</html>
