@@ -5,66 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>國際新能源案例探析</title>
     <style>
-        /* 💡 嚴格鎖定橫向佈局，絕對不動 */
-        body { 
-            margin: 0; background: #000; color: white; 
-            font-family: sans-serif; overflow: hidden; 
-            display: flex; flex-direction: row; height: 100vh; 
-        }
+        body { margin: 0; background: #000; color: white; font-family: sans-serif; overflow: hidden; display: flex; flex-direction: row; height: 100vh; }
         
-        /* 左側選單 - 💡 修正 1：提升至最高層級並強制 pointer-events */
-        #left-panel { 
-            width: 300px; z-index: 99999; padding: 40px 25px; 
-            background: #000; position: relative; border-right: 1px solid #222;
-        }
+        /* 💡 左側選單：維持你的橫向版面 */
+        #left-panel { width: 300px; padding: 40px 25px; background: #000; border-right: 1px solid #222; position: relative; z-index: 10; }
         .nav-item { 
             display: block; padding: 18px 15px; margin-bottom: 12px; 
-            background: #111; border: 1px solid #333;
-            border-radius: 8px; cursor: pointer; color: #888; transition: 0.3s;
-            position: relative; z-index: 100000; /* 再次強化按鈕層級 */
-            -webkit-user-select: none;
-            user-select: none;
+            background: #111; border: 1px solid #333; border-radius: 8px; color: #888; 
         }
         .nav-item.active { color: #fff; background: #222; border-width: 2px; }
 
-        /* 中間地球 - 💡 修正 2：確保 3D 畫布不攔截觸控 */
+        /* 💡 終極點擊修正：蓋在最上面的透明按鈕，這層絕對點得到 */
+        #click-fixer-layer {
+            position: absolute; top: 0; left: 0; width: 300px; height: 100vh;
+            z-index: 99999; /* 宇宙最高層級 */
+            display: flex; flex-direction: column; padding: 40px 25px; box-sizing: border-box;
+            pointer-events: none; /* 平時不擋，內容物才擋 */
+        }
+        .touch-zone { 
+            width: 100%; height: 60px; margin-bottom: 12px; 
+            pointer-events: auto; cursor: pointer; background: rgba(255,0,0,0); /* 全透明 */
+        }
+
+        /* 中間地球與色彩 */
         #spline-container { flex: 1; position: relative; background: #000; overflow: hidden; z-index: 1; }
-        
         #color-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 50; pointer-events: none; mix-blend-mode: screen; transition: background 0.6s ease;
+            z-index: 50; pointer-events: none; mix-blend-mode: screen; transition: 0.6s;
         }
-        
-        /* 科技調色盤 [cite: 2026-02-10] */
         .tech-blue { background: radial-gradient(circle, rgba(0, 242, 255, 0.4) 0%, rgba(0,0,0,0) 70%); }
         .tech-green { background: radial-gradient(circle, rgba(0, 255, 136, 0.45) 0%, rgba(0,0,0,0) 70%); }
         .tech-red { background: radial-gradient(circle, rgba(255, 77, 77, 0.45) 0%, rgba(0,0,0,0) 70%); }
 
-        /* 💡 關鍵：pointer-events: none 讓點擊直接穿透到後面的按鈕 */
         #main-model { width: 100%; height: 100%; pointer-events: none; }
         #touch-trigger { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; cursor: pointer; }
 
-        /* 右側面板 */
+        /* 右側數據 */
         #right-panel { width: 400px; padding: 40px 20px; z-index: 100; background: #000; border-left: 1px solid #222; }
         #data-box { display: block; background: #111; padding: 25px; border-radius: 12px; border: 1px solid #333; }
-        
         table { width: 100%; border-collapse: collapse; }
         td { padding: 12px 5px; border-bottom: 1px solid #222; font-size: 13px; vertical-align: top; }
-
-        @media (max-width: 767px) {
-            body { flex-direction: column; overflow-y: auto; }
-            #left-panel, #right-panel { width: 100%; height: auto; }
-            #spline-container { height: 40vh; flex: none; }
-        }
     </style>
 </head>
 <body>
 
+<div id="click-fixer-layer">
+    <div class="touch-zone" style="height: 100px;"></div> <div class="touch-zone" onclick="changeCase(0)"></div>
+    <div class="touch-zone" onclick="changeCase(1)"></div>
+    <div class="touch-zone" onclick="changeCase(2)"></div>
+</div>
+
 <div id="left-panel">
     <h1 style="font-size: 20px; margin-bottom: 25px;">國際新能源案例探析</h1>
-    <div onmousedown="changeCase(0)" ontouchstart="changeCase(0)" id="nav-0" class="nav-item"><strong>SAF</strong> 產業化進程</div>
-    <div onmousedown="changeCase(1)" ontouchstart="changeCase(1)" id="nav-1" class="nav-item"><strong>CCS</strong> 跨國合作</div>
-    <div onmousedown="changeCase(2)" ontouchstart="changeCase(2)" id="nav-2" class="nav-item"><strong>USA</strong> 政策轉向</div>
+    <div id="nav-0" class="nav-item"><strong>SAF</strong> 產業化進程</div>
+    <div id="nav-1" class="nav-item"><strong>CCS</strong> 跨國合作</div>
+    <div id="nav-2" class="nav-item"><strong>USA</strong> 政策轉向</div>
 </div>
 
 <div id="spline-container">
@@ -83,68 +78,31 @@
 
 <script>
     const sequence = [
-        { 
-            title: '1. SAF 產業化進程', color: '#00f2ff', bg: 'tech-blue', 
-            rows: [
-                ['印尼 Pertamina', 'UCO 廢油量產 / 商業首航', '完成產業鏈閉環'], 
-                ['新加坡 SAFCo', '中央採購 / 徵收附加費', '確立區域樞紐'], 
-                ['亞太生質煉油', '越馬投入大型煉油廠建設', '脫碳核心手段']
-            ] 
-        },
-        { 
-            title: '2. CCS 跨國合作', color: '#00ff88', bg: 'tech-green', 
-            rows: [
-                ['行政體制化', '美國監管權下放', '加速審核流程'], 
-                ['S-Hub 樞紐', '新馬印區域儲碳合作', '共享經濟模式'], 
-                ['澳洲 Bonaparte', '獲政府重大計畫地位', '千萬噸級封存']
-            ] 
-        },
-        { 
-            title: '3. 美國政策轉向', color: '#ff4d4d', bg: 'tech-red', 
-            rows: [
-                ['OBBBA 法案', '能源優先結構轉向', '放寬排放費'], 
-                ['補貼削減', '縮減 45V 稅收優惠', '重估在美佈局'], 
-                ['資金挪移', '資本轉向歐亞市場', '加速自主供應鏈']
-            ] 
-        }
+        { title: '1. SAF 產業化進程', color: '#00f2ff', bg: 'tech-blue', rows: [['印尼 Pertamina', 'UCO 廢油量產 / 商業首航', '完成產業鏈閉環'], ['新加坡 SAFCo', '中央採購 / 徵收附加費', '確立區域樞紐'], ['亞太生質煉油', '越馬投入大型煉油廠', '脫碳核心手段']] },
+        { title: '2. CCS 跨國合作', color: '#00ff88', bg: 'tech-green', rows: [['行政體制化', '美國監管權下放', '加速審核流程'], ['S-Hub 樞紐', '新馬印區域儲碳合作', '共享經濟模式'], ['澳洲 Bonaparte', '獲政府重大地位', '千萬噸級封封存']] },
+        { title: '3. 美國政策轉向', color: '#ff4d4d', bg: 'tech-red', rows: [['OBBBA 法案', '能源優先結構轉向', '放寬排放費'], ['補貼削減', '縮減 45V 稅收優惠', '重估在美佈局'], ['資金挪移', '資本轉向歐亞市場', '加速自主供應鏈']] }
     ];
 
     let current = 0;
-
     function changeCase(idx) {
         current = idx;
         const data = sequence[current];
-        
-        // 1. 切換顏色 [cite: 2026-02-10]
         document.getElementById('color-overlay').className = data.bg;
-
-        // 2. 更新右側表格
         const titleEl = document.getElementById('data-title');
         titleEl.innerText = data.title;
         titleEl.style.color = data.color;
         titleEl.style.borderColor = data.color;
-
         let html = "";
-        data.rows.forEach(r => {
-            html += `<tr><td style="color:${data.color};font-weight:bold;width:30%">${r[0]}</td><td style="width:40%">${r[1]}</td><td style="opacity:0.6;font-size:12px">${r[2]}</td></tr>`;
-        });
+        data.rows.forEach(r => { html += `<tr><td style="color:${data.color};font-weight:bold;width:30%">${r[0]}</td><td style="width:40%">${r[1]}</td><td style="opacity:0.6;font-size:12px">${r[2]}</td></tr>`; });
         document.getElementById('data-table-body').innerHTML = html;
-
-        // 3. 更新按鈕樣式
         document.querySelectorAll('.nav-item').forEach((item, i) => {
             item.classList.toggle('active', i === idx);
-            item.style.borderColor = (i === idx) ? data.color : '#333';
+            if(i === idx) item.style.borderColor = data.color;
+            else item.style.borderColor = '#333';
         });
     }
-
-    function nextCase() {
-        current = (current + 1) % 3;
-        changeCase(current);
-    }
-
-    // 初始化第一項
+    function nextCase() { current = (current + 1) % 3; changeCase(current); }
     window.onload = () => changeCase(0);
 </script>
-
 </body>
 </html>
