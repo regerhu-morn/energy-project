@@ -5,66 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>國際新能源案例探析</title>
     <style>
+        /* 💡 全局設定：確保在 iPad 不會亂跳 */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
             margin: 0; background: #000; color: white; 
             font-family: "Microsoft JhengHei", sans-serif; overflow: hidden;
-            display: flex; width: 100vw; height: 100vh;
+            width: 100vw; height: 100vh; position: relative;
         }
 
-        /* 💡 左側面板：電腦與 iPad 共用 */
-        #left-panel { 
-            width: 300px; flex-shrink: 0; z-index: 100; padding: 40px 25px;
-            background: linear-gradient(to right, rgba(0,0,0,1) 60%, transparent);
-        }
-
-        /* 💡 中央 3D 舞台 */
+        /* 💡 地球背景：設為絕對定位，鋪滿全螢幕但層級在最下面 */
         #spline-container { 
-            flex-grow: 1; position: relative; z-index: 10; 
-            display: flex; justify-content: center; align-items: center;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1; display: flex; justify-content: center; align-items: center;
         }
         spline-viewer { width: 100%; height: 100%; pointer-events: none; }
 
-        /* 💡 右側面板：電腦版正常排列，iPad 版自動漂浮 */
+        /* 💡 浮動 UI：左側面板 */
+        #left-panel { 
+            position: absolute; left: 0; top: 0; width: 300px; height: 100%;
+            z-index: 10; padding: 40px 25px;
+            background: linear-gradient(to right, rgba(0,0,0,0.9) 40%, transparent);
+            pointer-events: auto;
+        }
+
+        /* 💡 浮動 UI：右側面板 (解決不見的問題) */
         #right-panel { 
-            width: 350px; flex-shrink: 0; z-index: 100; padding: 40px 20px;
-            display: flex; flex-direction: column; justify-content: center;
+            position: absolute; right: 20px; top: 0; width: 340px; height: 100%;
+            z-index: 10; display: flex; flex-direction: column; justify-content: center;
+            pointer-events: none; /* 讓點擊可以穿透 */
         }
-
-        /* 當螢幕寬度小於 1200px (如 iPad) 時啟動漂浮模式 */
-        @media screen and (max-width: 1200px) {
-            #right-panel {
-                position: absolute; right: 20px; top: 0; height: 100%;
-                width: 320px; pointer-events: none; /* 讓點擊可以穿過面板邊框 */
-            }
-            #data-container { pointer-events: auto; } /* 只有面板內容可以點 */
-        }
-
         #data-container { 
             display: none; background: rgba(10, 15, 25, 0.95); border-radius: 15px; 
-            padding: 25px; border: 1px solid rgba(255,255,255,0.1); 
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            padding: 25px; border: 1px solid rgba(255,255,255,0.2); 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            pointer-events: auto; box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
 
-        /* 💡 濾鏡特效：確保 iPad (Safari) 也能渲染 */
+        /* 💡 透明點擊層：解決點地球沒反應的問題 */
+        #click-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 5; cursor: pointer;
+        }
+
+        /* 💡 修正 iPad 打光濾鏡 */
         .tech-green-filter { 
-            filter: brightness(1.1) sepia(1) hue-rotate(80deg) saturate(5) drop-shadow(0 0 20px #00ff88) !important;
-            -webkit-filter: brightness(1.1) sepia(1) hue-rotate(80deg) saturate(5) drop-shadow(0 0 20px #00ff88) !important;
+            filter: brightness(1.2) sepia(0.8) hue-rotate(85deg) saturate(6) !important;
+            -webkit-filter: brightness(1.2) sepia(0.8) hue-rotate(85deg) saturate(6) !important;
         }
         .tech-red-filter { 
-            filter: brightness(1.2) sepia(1) hue-rotate(320deg) saturate(6) drop-shadow(0 0 30px #ff4d4d) !important;
-            -webkit-filter: brightness(1.2) sepia(1) hue-rotate(320deg) saturate(6) drop-shadow(0 0 30px #ff4d4d) !important;
+            filter: brightness(1.3) sepia(0.8) hue-rotate(330deg) saturate(7) !important;
+            -webkit-filter: brightness(1.3) sepia(0.8) hue-rotate(330deg) saturate(7) !important;
         }
 
-        /* UI 樣式保留 */
+        /* 其他樣式保留 */
         .nav-item { 
-            display: block; text-decoration: none; padding: 18px 15px; background: rgba(255,255,255,0.03); 
+            display: block; text-decoration: none; padding: 18px 15px; background: rgba(255,255,255,0.05); 
             border-radius: 8px; color: rgba(255,255,255,0.4); font-size: 13px; margin-bottom: 12px;
             border: 1px solid rgba(255,255,255,0.1); transition: 0.4s;
         }
-        .nav-item.active.saf-theme { border-color: #00f2ff; color: #fff; box-shadow: 0 0 15px rgba(0, 242, 255, 0.3); }
-        .nav-item.active.ccs-theme { border-color: #00ff88; color: #fff; box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); }
-        .nav-item.active.us-theme { border-color: #ff4d4d; color: #fff; box-shadow: 0 0 15px rgba(255, 77, 77, 0.3); }
-
+        .nav-item.active.saf-theme { border-color: #00f2ff; color: #fff; box-shadow: 0 0 15px rgba(0, 242, 255, 0.4); }
+        .nav-item.active.ccs-theme { border-color: #00ff88; color: #fff; box-shadow: 0 0 15px rgba(0, 255, 136, 0.4); }
+        .nav-item.active.us-theme { border-color: #ff4d4d; color: #fff; box-shadow: 0 0 15px rgba(255, 77, 77, 0.4); }
         .table-title { font-size: 16px; font-weight: bold; margin-bottom: 20px; border-left: 4px solid currentColor; padding-left: 10px; }
         table { width: 100%; font-size: 13px; color: #ccc; border-collapse: collapse; }
         td { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; }
@@ -75,13 +76,16 @@
     <div id="left-panel">
         <h1 style="font-size: 24px; margin-bottom: 10px;">國際新能源案例探析</h1>
         <div id="left-guide" style="color:#00f2ff; font-size:13px; margin-bottom:20px; font-weight:bold;">＊ 點擊進入深度專題</div>
-        <a href="saf.html" target="_blank" id="nav-0" class="nav-item"><strong>SAF</strong> 產業鏈建立與目標</a>
-        <a href="ccs.html" target="_blank" id="nav-1" class="nav-item"><strong>CCS</strong> 跨境樞紐與監控</a>
-        <a href="usa.html" target="_blank" id="nav-2" class="nav-item"><strong>USA</strong> 美國大選政策風險</a>
+        <a href="saf.html" target="_blank" id="nav-0" class="nav-item"><strong>SAF</strong> 產業鏈建立</a>
+        <a href="ccs.html" target="_blank" id="nav-1" class="nav-item"><strong>CCS</strong> 跨境樞紐</a>
+        <a href="usa.html" target="_blank" id="nav-2" class="nav-item"><strong>USA</strong> 政策風險</a>
     </div>
 
-    <div id="spline-container" onclick="handleEarthClick()">
-        <div style="position:absolute; top:50px; color:#fff; font-size:14px; z-index:150; background:rgba(0,0,0,0.6); padding:8px 20px; border-radius:20px; border:1px solid rgba(255,255,255,0.2); pointer-events:none;">＊ 點擊地球切換專題摘要</div>
+    <div id="click-overlay" onclick="handleEarthClick()">
+        <div style="position:absolute; top:50px; left:50%; transform:translateX(-50%); color:#fff; font-size:14px; background:rgba(0,0,0,0.7); padding:8px 20px; border-radius:20px; border:1px solid rgba(255,255,255,0.3);">＊ 點擊地球切換專題摘要</div>
+    </div>
+
+    <div id="spline-container">
         <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.28/build/spline-viewer.js"></script>
         <spline-viewer id="main-model" url="https://prod.spline.design/cE6TgHmxUeFvM0Q3/scene.splinecode"></spline-viewer>
     </div>
@@ -95,18 +99,21 @@
 
     <script>
     var sequence = [
-        { title: '1. SAF 產業化進程', color: '#00f2ff', theme: 'saf-theme', rows: [['印尼', 'UCO 量產首航', '完成產業鏈閉環'], ['新加坡', '中央採購徵費', '建立資助機制'], ['亞太', '投入大型煉油廠', '脫碳核心手段']] },
-        { title: '2. CCS 跨國合作', color: '#00ff88', theme: 'ccs-theme', rows: [['美國', '監管權下放', '加速審核流程'], ['新馬印', '區域儲碳合作', '共享經濟模式'], ['澳洲', '千萬噸級封存', '支撐亞太減碳']] },
-        { title: '3. 美國政策轉向', color: '#ff4d4d', theme: 'us-theme', rows: [['OBBBA', '能源優先轉向', '取消租賃限制'], ['補貼', '縮減 45V 稅收', '投資者重估'], ['資金', '轉向歐亞市場', '加速自主建設']] }
+        { title: '1. SAF 產業化進程', color: '#00f2ff', theme: 'saf-theme', rows: [['印尼', 'UCO 量產首航', '產業鏈閉環'], ['新加坡', '中央採購', '資助機制'], ['亞太', '投入大型煉油廠', '脫碳手段']] },
+        { title: '2. CCS 跨國合作', color: '#00ff88', theme: 'ccs-theme', rows: [['美國', '監管權下放', '加速審核'], ['新馬印', '區域儲碳合作', '共享模式'], ['澳洲', '千萬噸級封存', '減碳支撐']] },
+        { title: '3. 美國政策轉向', color: '#ff4d4d', theme: 'us-theme', rows: [['OBBBA', '能源優先轉向', '取消租賃'], ['補貼', '縮減 45V 稅收', '重估佈局'], ['資金', '轉向歐亞市場', '自主建設']] }
     ];
 
     var clickCount = 0;
 
     function handleEarthClick() {
+        console.log("Earth Clicked!"); // 測試用
         var idx = clickCount % 3;
         var data = sequence[idx];
 
-        document.getElementById('data-container').style.display = 'block';
+        // 1. 顯示面板
+        var dc = document.getElementById('data-container');
+        dc.style.display = 'block';
         document.getElementById('table-title').innerText = data.title;
         document.getElementById('table-title').style.color = data.color;
 
@@ -118,16 +125,20 @@
         }
         document.getElementById('table-body').innerHTML = rowsHtml;
 
-        // UI 同步
+        // 2. UI 同步
         document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active', 'saf-theme', 'ccs-theme', 'us-theme'));
         document.getElementById('nav-' + idx).classList.add('active', data.theme);
         document.getElementById('left-guide').style.color = data.color;
 
-        // 特效切換
+        // 3. 濾鏡打光 (針對 iPad 加強渲染)
         var model = document.getElementById('main-model');
         model.classList.remove('tech-green-filter', 'tech-red-filter');
-        if (idx === 1) model.classList.add('tech-green-filter');
-        if (idx === 2) model.classList.add('tech-red-filter');
+        
+        // 強制重繪濾鏡
+        setTimeout(function(){
+            if (idx === 1) model.classList.add('tech-green-filter');
+            if (idx === 2) model.classList.add('tech-red-filter');
+        }, 10);
 
         clickCount++;
     }
