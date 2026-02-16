@@ -11,30 +11,23 @@
             width: 100vw; height: 100vh; position: relative;
         }
 
-        /* 💡 地球層 */
+        /* 💡 地球層：確保權限完整 */
         #spline-bg { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 1; display: flex; justify-content: center; align-items: center;
         }
-        spline-viewer { width: 100%; height: 100%; pointer-events: auto; }
+        spline-viewer { width: 100%; height: 100%; }
 
         /* 💡 UI 面板通用 */
-        .ui-overlay { 
-            position: absolute; z-index: 10; pointer-events: none; 
-        }
+        .ui-overlay { position: absolute; z-index: 10; pointer-events: none; }
 
-        /* 左側維持原樣 */
         #left-panel { 
             left: 0; top: 0; width: 300px; height: 100%; padding: 40px;
             background: linear-gradient(to right, rgba(0,0,0,1) 40%, transparent);
             display: flex; flex-direction: column; justify-content: center;
         }
 
-        /* 💡 右側面板：修正為靠右上角、縮小寬度 */
-        #right-panel { 
-            right: 20px; top: 30px; /* 往上往右移 */
-            width: 300px; /* 稍微縮小寬度，避免壓到地球 */
-        }
+        #right-panel { right: 20px; top: 30px; width: 300px; }
 
         .nav-group, #data-container { pointer-events: auto; }
 
@@ -42,19 +35,17 @@
             display: none; background: rgba(10, 15, 25, 0.9); border-radius: 12px; 
             padding: 20px; border: 1px solid rgba(255,255,255,0.2); 
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* 濾鏡特效 */
+        /* 濾鏡打光特效 */
         .tech-green-filter { filter: brightness(1.2) sepia(0.5) hue-rotate(90deg) saturate(6) !important; -webkit-filter: brightness(1.2) sepia(0.5) hue-rotate(90deg) saturate(6) !important; }
         .tech-red-filter { filter: brightness(1.3) sepia(0.5) hue-rotate(330deg) saturate(6) !important; -webkit-filter: brightness(1.3) sepia(0.5) hue-rotate(330deg) saturate(6) !important; }
 
-        /* 按鈕與表格樣式 */
+        /* 其他視覺 */
         .nav-item { display: block; text-decoration: none; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 8px; color: rgba(255,255,255,0.4); font-size: 13px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1); transition: 0.4s; }
         .nav-item.active.saf-theme { border-color: #00f2ff; color: #fff; }
         .nav-item.active.ccs-theme { border-color: #00ff88; color: #fff; }
         .nav-item.active.us-theme { border-color: #ff4d4d; color: #fff; }
-
         .table-title { font-size: 15px; font-weight: bold; margin-bottom: 12px; border-left: 3px solid currentColor; padding-left: 10px; }
         table { width: 100%; font-size: 12px; color: #ccc; border-collapse: collapse; }
         td { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -64,7 +55,7 @@
 
     <div id="spline-bg">
         <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.28/build/spline-viewer.js"></script>
-        <spline-viewer id="main-model" url="https://prod.spline.design/cE6TgHmxUeFvM0Q3/scene.splinecode" onclick="handleGlobalClick()"></spline-viewer>
+        <spline-viewer id="main-model" url="https://prod.spline.design/cE6TgHmxUeFvM0Q3/scene.splinecode"></spline-viewer>
     </div>
 
     <div id="left-panel" class="ui-overlay">
@@ -84,7 +75,7 @@
         </div>
     </div>
 
-    <div style="position:absolute; bottom:30px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.5); font-size:11px; z-index:100; pointer-events:none;">＊ 拖動旋轉地球 / 點擊切換專題摘要</div>
+    <div style="position:absolute; bottom:30px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.5); font-size:11px; z-index:100; pointer-events:none;">＊ 拖動旋轉地球 / 點擊切換專題</div>
 
     <script>
     var sequence = [
@@ -94,8 +85,28 @@
     ];
 
     var clickCount = 0;
+    var startX, startY;
 
-    function handleGlobalClick() {
+    // 💡 智能判斷：區分拖拽旋轉與單純點擊
+    const viewer = document.getElementById('main-model');
+
+    viewer.addEventListener('pointerdown', (e) => {
+        startX = e.clientX;
+        startY = e.clientY;
+    });
+
+    viewer.addEventListener('pointerup', (e) => {
+        const diffX = Math.abs(e.clientX - startX);
+        const diffY = Math.abs(e.clientY - startY);
+
+        // 如果手指移動距離小於 5 像素，判定為「點擊」，執行數據切換
+        if (diffX < 5 && diffY < 5) {
+            handleDataSwitch();
+        }
+        // 如果距離大，則不執行動作，讓 Spline 預設的旋轉正常運作
+    });
+
+    function handleDataSwitch() {
         var idx = clickCount % 3;
         var data = sequence[idx];
 
@@ -115,12 +126,11 @@
         document.getElementById('nav-' + idx).classList.add('active', data.theme);
         document.getElementById('left-guide').style.color = data.color;
 
-        var model = document.getElementById('main-model');
-        model.classList.remove('tech-green-filter', 'tech-red-filter');
-        setTimeout(function(){
-            if (idx === 1) model.classList.add('tech-green-filter');
-            if (idx === 2) model.classList.add('tech-red-filter');
-        }, 50);
+        viewer.classList.remove('tech-green-filter', 'tech-red-filter');
+        setTimeout(() => {
+            if (idx === 1) viewer.classList.add('tech-green-filter');
+            if (idx === 2) viewer.classList.add('tech-red-filter');
+        }, 30);
 
         clickCount++;
     }
