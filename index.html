@@ -5,57 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>國際新能源案例探析</title>
     <style>
-        body { margin: 0; background: #000; color: white; font-family: sans-serif; overflow: hidden; display: flex; height: 100vh; }
+        /* 💡 回復橫向佈局 */
+        body { 
+            margin: 0; background: #000; color: white; 
+            font-family: sans-serif; overflow: hidden; 
+            display: flex; flex-direction: row; height: 100vh; 
+        }
         
-        /* 💡 iPad 點擊關鍵：z-index 設為最高，並確保 pointer-events 為 auto */
+        /* 左側選單 - 確保 iPad 點得到 */
         #left-panel { 
-            width: 320px; z-index: 9999; padding: 30px; 
-            background: rgba(0,0,0,0.85); position: relative; 
-            pointer-events: auto; 
+            width: 300px; z-index: 1000; padding: 40px 25px; 
+            background: rgba(0,0,0,0.8); position: relative; 
+            display: flex; flex-direction: column;
         }
         .nav-item { 
             display: block; padding: 18px 15px; margin-bottom: 12px; 
             background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 10px; cursor: pointer; color: #888; transition: 0.3s;
-            -webkit-tap-highlight-color: transparent;
+            border-radius: 8px; cursor: pointer; color: #888; transition: 0.3s;
         }
-        .nav-item.active { color: #fff; background: rgba(255,255,255,0.12); }
+        .nav-item.active { color: #fff; background: rgba(255,255,255,0.1); }
 
+        /* 中間地球 - 解決顏色問題 */
         #spline-container { flex: 1; position: relative; background: #000; overflow: hidden; }
-        
-        /* 解決顏色相反的 Overlay 方案 */
         #color-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 50; pointer-events: none; 
-            mix-blend-mode: screen; 
-            transition: background 0.5s ease;
+            z-index: 50; pointer-events: none; mix-blend-mode: screen; transition: 0.6s;
         }
         .tech-blue { background: rgba(0, 242, 255, 0.4); }
         .tech-green { background: rgba(0, 255, 136, 0.5); }
         .tech-red { background: rgba(255, 77, 77, 0.5); }
 
         #main-model { width: 100%; height: 100%; pointer-events: none; }
-        #touch-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; cursor: pointer; }
+        #touch-trigger { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; cursor: pointer; }
 
-        /* 右側面板數據區 */
-        #right-panel { width: 400px; padding: 20px; z-index: 1000; position: relative; }
-        #data-box { display: none; background: rgba(15,15,20,0.95); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(10px); }
+        /* 右側數據 */
+        #right-panel { width: 380px; padding: 40px 20px; z-index: 100; position: relative; }
+        #data-box { display: none; background: rgba(20,20,25,0.9); padding: 25px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        td { padding: 12px 5px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 13px; vertical-align: top; }
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: 12px 5px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; vertical-align: top; }
 
-        @media (max-width: 1024px) {
+        /* iPad 橫向保持三欄，僅手機直向才切換 */
+        @media (max-width: 768px) {
             body { flex-direction: column; overflow-y: auto; }
-            #left-panel { width: 100%; height: auto; box-sizing: border-box; }
+            #left-panel, #right-panel { width: 100%; height: auto; }
             #spline-container { height: 40vh; flex: none; }
-            #right-panel { width: 100%; box-sizing: border-box; }
         }
     </style>
 </head>
 <body>
 
 <div id="left-panel">
-    <h2 style="font-size: 1.2rem; margin-bottom: 20px;">新能源案例探析</h2>
+    <h1 style="font-size: 20px; margin-bottom: 25px;">國際新能源案例探析</h1>
     <div onclick="changeCase(0)" id="nav-0" class="nav-item"><strong>SAF</strong> 產業化進程</div>
     <div onclick="changeCase(1)" id="nav-1" class="nav-item"><strong>CCS</strong> 跨國合作</div>
     <div onclick="changeCase(2)" id="nav-2" class="nav-item"><strong>USA</strong> 政策轉向</div>
@@ -63,27 +64,22 @@
 
 <div id="spline-container">
     <div id="color-overlay" class="tech-blue"></div>
-    <div id="touch-layer" onclick="nextCase()"></div>
+    <div id="touch-trigger" onclick="nextCase()"></div>
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.28/build/spline-viewer.js"></script>
     <spline-viewer id="main-model" url="https://prod.spline.design/cE6TgHmxUeFvM0Q3/scene.splinecode"></spline-viewer>
 </div>
 
 <div id="right-panel">
     <div id="data-box">
-        <h3 id="data-title" style="margin: 0; padding-left: 10px; border-left: 4px solid;"></h3>
-        <table>
-            <tbody id="data-table-body"></tbody>
-        </table>
+        <h3 id="data-title" style="margin:0 0 15px 0; padding-left:10px; border-left:4px solid;"></h3>
+        <table><tbody id="data-table-body"></tbody></table>
     </div>
 </div>
 
 <script>
-    // 💡 已經將你提供的最新 sequence 資料改進去
     const sequence = [
         { 
-            title: '1. SAF 產業化進程', 
-            color: '#00f2ff', 
-            bgClass: 'tech-blue', 
+            title: '1. SAF 產業化進程', color: '#00f2ff', bg: 'tech-blue', 
             rows: [
                 ['印尼 Pertamina', 'UCO 廢油量產 / 商業首航', '完成產業鏈閉環'], 
                 ['新加坡 SAFCo', '中央採購 / 徵收附加費', '確立區域樞紐'], 
@@ -91,9 +87,7 @@
             ] 
         },
         { 
-            title: '2. CCS 跨國合作', 
-            color: '#00ff88', 
-            bgClass: 'tech-green', 
+            title: '2. CCS 跨國合作', color: '#00ff88', bg: 'tech-green', 
             rows: [
                 ['行政體制化', '美國監管權下放', '加速審核流程'], 
                 ['S-Hub 樞紐', '新馬印區域儲碳合作', '共享經濟模式'], 
@@ -101,9 +95,7 @@
             ] 
         },
         { 
-            title: '3. 美國政策轉向', 
-            color: '#ff4d4d', 
-            bgClass: 'tech-red', 
+            title: '3. 美國政策轉向', color: '#ff4d4d', bg: 'tech-red', 
             rows: [
                 ['OBBBA 法案', '能源優先結構轉向', '放寬排放費'], 
                 ['補貼削減', '縮減 45V 稅收優惠', '重估在美佈局'], 
@@ -117,11 +109,7 @@
     function changeCase(idx) {
         current = idx;
         const data = sequence[current];
-        
-        // 1. 更新地球顏色
-        document.getElementById('color-overlay').className = data.bgClass;
-        
-        // 2. 更新右側表格
+        document.getElementById('color-overlay').className = data.bg;
         document.getElementById('data-box').style.display = 'block';
         const titleEl = document.getElementById('data-title');
         titleEl.innerText = data.title;
@@ -130,19 +118,13 @@
 
         let html = "";
         data.rows.forEach(r => {
-            html += `<tr>
-                <td style="color:${data.color}; font-weight:bold; width:30%;">${r[0]}</td>
-                <td style="width:40%;">${r[1]}</td>
-                <td style="opacity:0.7; font-size:12px;">${r[2]}</td>
-            </tr>`;
+            html += `<tr><td style="color:${data.color};font-weight:bold;width:30%">${r[0]}</td><td style="width:40%">${r[1]}</td><td style="opacity:0.6;font-size:12px">${r[2]}</td></tr>`;
         });
         document.getElementById('data-table-body').innerHTML = html;
 
-        // 3. 更新按鈕狀態
         document.querySelectorAll('.nav-item').forEach((item, i) => {
             item.classList.toggle('active', i === idx);
             item.style.borderColor = (i === idx) ? data.color : 'rgba(255,255,255,0.1)';
-            item.style.color = (i === idx) ? data.color : '#888';
         });
     }
 
