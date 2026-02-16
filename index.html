@@ -2,112 +2,109 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>國際新能源案例探析</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>國際新能源案例</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
+        body, html { margin: 0; padding: 0; height: 100vh; background: #000; overflow: hidden; font-family: sans-serif; color: white; }
 
-        /* 1. 底層：只放地球背景，設為 pointer-events: none 絕對不擋點擊 */
-        #bg-3d {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;
+        /* 💡 核心：將螢幕分成三份，中間那份完全留給地球互動 */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 320px 1fr 400px; 
+            width: 100vw;
+            height: 100vh;
         }
 
-        /* 2. UI 層：強制在最前方 */
-        #ui-wrapper {
-            position: relative; z-index: 9999; width: 100%; height: 100vh;
-            display: flex; justify-content: space-between; align-items: center;
+        /* 兩側面板有背景，中間設為 transparent */
+        .panel { 
+            background: rgba(10, 10, 10, 0.95); 
+            z-index: 10; 
+            padding: 40px 20px; 
+            border: 1px solid #333;
+            box-sizing: border-box;
         }
 
-        .side-panel {
-            width: 320px; height: 100vh; background: rgba(0, 0, 0, 0.85);
-            border: 1px solid #333; padding: 40px 20px; box-sizing: border-box;
-            display: flex; flex-direction: column;
+        /* 中間地球區：不放任何背景或隱形層，讓滑鼠直接點到底下的 Spline */
+        .spline-zone { 
+            position: relative;
+            background: transparent;
+            cursor: grab;
+        }
+
+        /* 地球本體放在最底層 */
+        #spline-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;
         }
 
         /* 按鈕樣式 */
-        .nav-btn {
-            padding: 20px; background: #111; border: 1px solid #333; border-radius: 10px;
-            margin-bottom: 15px; cursor: pointer; color: #555; transition: 0.3s;
+        .nav-item {
+            padding: 22px; background: #1a1a1a; border: 1px solid #444;
+            border-radius: 12px; margin-bottom: 15px; cursor: pointer;
+            color: #666; transition: 0.3s;
         }
-        .nav-btn.active.saf { border-color: #00f2ff; color: #00f2ff; box-shadow: 0 0 15px rgba(0,242,255,0.3); }
-        .nav-btn.active.ccs { border-color: #00ff88; color: #00ff88; box-shadow: 0 0 15px rgba(0,255,136,0.3); }
-        .nav-btn.active.usa { border-color: #ff4d4d; color: #ff4d4d; box-shadow: 0 0 15px rgba(255,77,77,0.3); }
+        .nav-item.active.saf-theme { border-color: #00f2ff; color: #00f2ff; }
+        .nav-item.active.ccs-theme { border-color: #00ff88; color: #00ff88; }
+        .nav-item.active.us-theme { border-color: #ff4d4d; color: #ff4d4d; }
 
-        /* 數據區 */
-        #data-card { background: #111; border-radius: 15px; padding: 25px; border: 1px solid #444; }
-        .title { font-size: 20px; font-weight: bold; margin-bottom: 20px; border-left: 5px solid; padding-left: 12px; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; color: #ccc; }
-        td { padding: 12px 0; border-bottom: 1px solid #222; }
-
-        /* 中間透明點擊區 */
-        #center-click { flex-grow: 1; height: 100%; cursor: pointer; }
+        #data-box { background: #111; border-radius: 15px; padding: 30px; border: 1px solid #444; }
+        .title { font-size: 20px; font-weight: bold; margin-bottom: 25px; border-left: 6px solid; padding-left: 15px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        td { padding: 15px 0; border-bottom: 1px solid #222; color: #ccc; }
     </style>
 </head>
 <body>
 
-    <div id="bg-3d">
+    <div id="spline-canvas">
         <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.28/build/spline-viewer.js"></script>
         <spline-viewer url="https://prod.spline.design/cE6TgHmxUeFvM0Q3/scene.splinecode"></spline-viewer>
     </div>
 
-    <div id="ui-wrapper">
-        <div class="side-panel">
-            <h2 style="color:white; margin-bottom:30px;">新能源探析</h2>
-            <div id="btn0" onclick="update(0)" class="nav-btn"><strong>SAF</strong> 產業化進程</div>
-            <div id="btn1" onclick="update(1)" class="nav-btn"><strong>CCS</strong> 跨國合作</div>
-            <div id="btn2" onclick="update(2)" class="nav-btn"><strong>USA</strong> 政策轉向</div>
+    <div class="main-layout">
+        <div class="panel">
+            <h2 style="margin-bottom:40px;">國際新能源案例</h2>
+            <div id="btn0" onclick="updateUI(0)" class="nav-item"><strong>SAF</strong> 產業化進程</div>
+            <div id="btn1" onclick="updateUI(1)" class="nav-item"><strong>CCS</strong> 跨國合作</div>
+            <div id="btn2" onclick="updateUI(2)" class="nav-item"><strong>USA</strong> 政策轉向</div>
         </div>
 
-        <div id="center-click" onclick="next()"></div>
+        <div class="spline-zone"></div>
 
-        <div class="side-panel">
-            <div id="data-card">
-                <div id="t" class="title">正在讀取...</div>
-                <table id="table"></table>
+        <div class="panel">
+            <div id="data-box">
+                <div id="table-title" class="title">正在初始化...</div>
+                <table id="data-table"></table>
             </div>
         </div>
     </div>
 
     <script>
-        // 💡 完整保留你指定的 SAF、CCS、USA 數據內容 [cite: 2026-01-31]
-        const data = [
-            { t: '1. SAF 產業化進程', c: '#00f2ff', cls: 'saf', rows: [['印尼 Pertamina', 'UCO 廢油量產 / 商業首航', '完成產業鏈閉環'], ['新加坡 SAFCo', '建立穩定資助機制', '確立區域樞紐'], ['亞太生質煉油', '成為區域脫碳核心手段', '越馬投入建設']] },
-            { t: '2. CCS 跨國合作', c: '#00ff88', cls: 'ccs', rows: [['行政體制化', '美國 Class VI 監管下放', '加速審核流程'], ['S-Hub 樞紐', '新馬印區域儲碳合作', '共享經濟模式'], ['澳洲 Bonaparte', '獲政府授權重大地位', '千萬噸級封存']] },
-            { t: '3. 美國政策轉向', c: '#ff4d4d', cls: 'usa', rows: [['OBBBA 法案', '推動「能源優先」轉向', '取消租賃限制'], ['補貼削減', '縮減 45V 稅收優惠', '重估在美佈局'], ['資金挪移', '資本從美轉向歐亞市場', '加速自主供應鏈']] }
-        ];
+    // 保留你最新的數據大綱 [cite: 2026-01-31]
+    var sequence = [
+        { title: '1. SAF 產業化進程', color: '#00f2ff', theme: 'saf-theme', rows: [['印尼 Pertamina', 'UCO 廢油量產 / 商業首航'], ['新加坡 SAFCo', '確立區域樞紐'], ['亞太生質煉油', '成為區域脫碳核心']] },
+        { title: '2. CCS 跨國合作', color: '#00ff88', theme: 'ccs-theme', rows: [['行政體制化', '美國 Class VI 監管下放'], ['S-Hub 樞紐', '新馬印區域儲碳合作'], ['澳洲 Bonaparte', '獲重大計畫地位']] },
+        { title: '3. 美國政策轉向', color: '#ff4d4d', theme: 'us-theme', rows: [['OBBBA 法案', '推動「能源優先」結構'], ['補貼削減', '縮減 45V 綠氫等優惠'], ['資金挪移', '資本從美國轉向歐亞']] }
+    ];
 
-        let count = 0;
+    function updateUI(idx) {
+        var item = sequence[idx];
+        document.getElementById('table-title').innerText = item.title;
+        document.getElementById('table-title').style.color = item.color;
+        document.getElementById('table-title').style.borderColor = item.color;
 
-        function update(idx) {
-            count = idx;
-            const item = data[idx];
-            
-            // 標題與顏色
-            const titleEl = document.getElementById('t');
-            titleEl.innerText = item.t;
-            titleEl.style.color = item.c;
-            titleEl.style.borderColor = item.c;
+        let html = "";
+        item.rows.forEach(r => {
+            html += `<tr><td style="color:${item.color};font-weight:bold;width:40%">${r[0]}</td><td>${r[1]}</td></tr>`;
+        });
+        document.getElementById('data-table').innerHTML = html;
 
-            // 表格數據內容
-            let h = "";
-            item.rows.forEach(r => {
-                h += `<tr><td style="color:${item.c};font-weight:bold;width:35%">${r[0]}</td><td>${r[1]}</td></tr>`;
-            });
-            document.getElementById('table').innerHTML = h;
-
-            // 按鈕高亮
-            for(let i=0; i<3; i++) {
-                document.getElementById('btn'+i).className = 'nav-btn' + (i===idx ? ' active ' + item.cls : '');
-            }
+        for(let i=0; i<3; i++) {
+            const btn = document.getElementById('btn' + i);
+            btn.className = 'nav-item' + (i === idx ? ' active ' + item.theme : '');
         }
+    }
 
-        function next() {
-            count = (count + 1) % 3;
-            update(count);
-        }
-
-        // 強制立即初始化，不等待 3D 載入
-        update(0);
+    // 初始化第一個數據 [cite: 2026-01-31]
+    window.onload = () => updateUI(0);
     </script>
 </body>
 </html>
