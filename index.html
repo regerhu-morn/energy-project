@@ -7,44 +7,38 @@
     <style>
         body, html { margin: 0; padding: 0; height: 100vh; background: #000; overflow: hidden; font-family: sans-serif; color: white; }
 
-        /* 💡 核心：將螢幕分成三份，中間那份完全留給地球互動 */
-        .main-layout {
-            display: grid;
-            grid-template-columns: 320px 1fr 400px; 
-            width: 100vw;
-            height: 100vh;
-        }
-
-        /* 兩側面板有背景，中間設為 transparent */
-        .panel { 
-            background: rgba(10, 10, 10, 0.95); 
-            z-index: 10; 
-            padding: 40px 20px; 
-            border: 1px solid #333;
-            box-sizing: border-box;
-        }
-
-        /* 中間地球區：不放任何背景或隱形層，讓滑鼠直接點到底下的 Spline */
-        .spline-zone { 
-            position: relative;
-            background: transparent;
-            cursor: grab;
-        }
-
-        /* 地球本體放在最底層 */
+        /* 1. 地球背景：放在最底層，預設開啟互動 */
         #spline-canvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;
         }
 
-        /* 按鈕樣式 */
+        /* 2. UI 佈局：重點在於中間這欄寬度設為 1fr 且不設背景，這樣滑鼠就能點到地球 */
+        .main-layout {
+            position: relative; z-index: 10;
+            display: grid;
+            grid-template-columns: 320px 1fr 400px; 
+            width: 100vw; height: 100vh;
+            pointer-events: none; /* 💡 讓整個層穿透 */
+        }
+
+        /* 3. 面板：只有這裡恢復點擊，不擋地球 */
+        .panel { 
+            background: rgba(10, 10, 10, 0.9); 
+            padding: 40px 20px; 
+            border: 1px solid #333;
+            box-sizing: border-box;
+            pointer-events: auto; /* 💡 只有面板能點擊 */
+        }
+
+        /* 按鈕樣式：加入你指定的顏色與主題 [cite: 2026-01-31] */
         .nav-item {
             padding: 22px; background: #1a1a1a; border: 1px solid #444;
             border-radius: 12px; margin-bottom: 15px; cursor: pointer;
             color: #666; transition: 0.3s;
         }
-        .nav-item.active.saf-theme { border-color: #00f2ff; color: #00f2ff; }
-        .nav-item.active.ccs-theme { border-color: #00ff88; color: #00ff88; }
-        .nav-item.active.us-theme { border-color: #ff4d4d; color: #ff4d4d; }
+        .nav-item.active.saf-theme { border-color: #00f2ff; color: #00f2ff; box-shadow: 0 0 10px rgba(0,242,255,0.3); }
+        .nav-item.active.ccs-theme { border-color: #00ff88; color: #00ff88; box-shadow: 0 0 10px rgba(0,255,136,0.3); }
+        .nav-item.active.us-theme { border-color: #ff4d4d; color: #ff4d4d; box-shadow: 0 0 10px rgba(255,77,77,0.3); }
 
         #data-box { background: #111; border-radius: 15px; padding: 30px; border: 1px solid #444; }
         .title { font-size: 20px; font-weight: bold; margin-bottom: 25px; border-left: 6px solid; padding-left: 15px; }
@@ -67,7 +61,7 @@
             <div id="btn2" onclick="updateUI(2)" class="nav-item"><strong>USA</strong> 政策轉向</div>
         </div>
 
-        <div class="spline-zone"></div>
+        <div style="pointer-events: none;"></div>
 
         <div class="panel">
             <div id="data-box">
@@ -78,11 +72,32 @@
     </div>
 
     <script>
-    // 保留你最新的數據大綱 [cite: 2026-01-31]
+    // 💡 確保數據變數在這裡，不會「不見」 [cite: 2026-01-31]
     var sequence = [
-        { title: '1. SAF 產業化進程', color: '#00f2ff', theme: 'saf-theme', rows: [['印尼 Pertamina', 'UCO 廢油量產 / 商業首航'], ['新加坡 SAFCo', '確立區域樞紐'], ['亞太生質煉油', '成為區域脫碳核心']] },
-        { title: '2. CCS 跨國合作', color: '#00ff88', theme: 'ccs-theme', rows: [['行政體制化', '美國 Class VI 監管下放'], ['S-Hub 樞紐', '新馬印區域儲碳合作'], ['澳洲 Bonaparte', '獲重大計畫地位']] },
-        { title: '3. 美國政策轉向', color: '#ff4d4d', theme: 'us-theme', rows: [['OBBBA 法案', '推動「能源優先」結構'], ['補貼削減', '縮減 45V 綠氫等優惠'], ['資金挪移', '資本從美國轉向歐亞']] }
+        { 
+            title: '1. SAF 產業化進程', color: '#00f2ff', theme: 'saf-theme', 
+            rows: [
+                ['印尼 Pertamina', 'UCO 廢油量產 / 商業首航', '完成產業鏈閉環 [cite: 2026-01-31]'], 
+                ['新加坡 SAFCo', '中央採購 / 徵收附加費', '確立區域樞紐 [cite: 2026-01-31]'], 
+                ['亞太生質煉油', '越馬投入大型煉油廠', '脫碳核心手段 [cite: 2026-01-31]']
+            ] 
+        },
+        { 
+            title: '2. CCS 跨國合作', color: '#00ff88', theme: 'ccs-theme', 
+            rows: [
+                ['行政體制化', '美國 Class VI 權限下放', '加速審核流程 [cite: 2026-01-31]'], 
+                ['S-Hub 樞紐', '新馬印區域儲碳合作', '共享經濟模式 [cite: 2026-01-31]'], 
+                ['澳洲 Bonaparte', '獲政府授權重大地位', '千萬噸級封存 [cite: 2026-01-31]']
+            ] 
+        },
+        { 
+            title: '3. 美國政策轉向', color: '#ff4d4d', theme: 'us-theme', 
+            rows: [
+                ['OBBBA 法案', '推動「能源優先」轉向', '取消租賃限制 [cite: 2026-01-31]'], 
+                ['補貼削減', '縮減 45V 稅收優惠', '重估在美佈局 [cite: 2026-01-31]'], 
+                ['資金挪移', '資本從美國轉向歐亞', '加速自主鏈 [cite: 2026-01-31]']
+            ] 
+        }
     ];
 
     function updateUI(idx) {
@@ -93,7 +108,7 @@
 
         let html = "";
         item.rows.forEach(r => {
-            html += `<tr><td style="color:${item.color};font-weight:bold;width:40%">${r[0]}</td><td>${r[1]}</td></tr>`;
+            html += `<tr><td style="color:${item.color};font-weight:bold;width:40%">${r[0]}</td><td>${r[1]}<br><small style="opacity:0.5">${r[2]}</small></td></tr>`;
         });
         document.getElementById('data-table').innerHTML = html;
 
@@ -103,7 +118,7 @@
         }
     }
 
-    // 初始化第一個數據 [cite: 2026-01-31]
+    // 初始化第一個數據
     window.onload = () => updateUI(0);
     </script>
 </body>
