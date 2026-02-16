@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>USA 美國大選與政策風險 - 互動播放室</title>
+    <style>
+        /* 💡 核心色系更換為 USA 弘光（紅色） */
+        :root { --usa-red: #ff4d4d; --panel-bg: rgba(10, 10, 10, 0.98); }
+        
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+            touch-action: manipulation; 
+        }
+
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); }
+        ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(to bottom, transparent, var(--usa-red), transparent); 
+            border-radius: 10px; 
+            box-shadow: 0 0 12px rgba(255, 77, 77, 0.4); 
+        }
+
+        body { 
+            margin: 0; background: #000; color: white; 
+            font-family: "Microsoft JhengHei", sans-serif; overflow: hidden;
+            display: grid; 
+            grid-template-columns: minmax(260px, 300px) 1fr minmax(200px, 240px); 
+            width: 100vw; height: 100vh;
+        }
+
+        /* --- 左側控制面板 --- */
+        #side-panel { 
+            background: var(--panel-bg); 
+            padding: 25px 20px; 
+            border-right: 1px solid rgba(255, 77, 77, 0.1); 
+            display: flex; flex-direction: column; 
+            z-index: 100; height: 100vh; min-width: 0;
+        }
+        
+        .back-link { 
+            color: #555; text-decoration: none; font-size: 11px; margin-bottom: 20px; 
+            display: inline-block; padding: 5px 0; transition: 0.3s; letter-spacing: 1px;
+        }
+        .back-link:hover { color: var(--usa-red); }
+
+        h1 { color: var(--usa-red); font-size: 18px; letter-spacing: 1px; margin-bottom: 20px; text-shadow: 0 0 10px rgba(255, 77, 77, 0.3); }
+        
+        .project-menu { flex-grow: 1; overflow-y: auto; padding-right: 5px; }
+        .project-btn { 
+            background: rgba(255,255,255,0.03); border: 1px solid #222; color: #666; padding: 18px 15px; 
+            border-radius: 8px; cursor: pointer; text-align: left; margin-bottom: 12px; transition: 0.2s; 
+            position: relative; width: 100%; font-size: 14px;
+        }
+        .project-btn.active { background: rgba(255, 77, 77, 0.08); border-color: var(--usa-red); color: white; box-shadow: inset 0 0 10px rgba(255, 77, 77, 0.1); }
+        .progress-bar { position: absolute; bottom: 0; left: 0; height: 2px; background: var(--usa-red); width: 0%; transition: 0.1s linear; box-shadow: 0 0 8px var(--usa-red); }
+
+        #podcast-area { margin-top: auto; padding-top: 20px; border-top: 1px solid #222; background: var(--panel-bg); }
+        audio { width: 100%; height: 36px; filter: invert(1) hue-rotate(320deg) opacity(0.6); margin-top: 10px; }
+
+        /* --- 中央播放舞台 --- */
+        #display-zone { position: relative; background: #050505; display: flex; align-items: center; justify-content: center; overflow: hidden; min-width: 0; }
+        #main-video { width: 92%; max-height: 85%; border: 1px solid #1a1a1a; background: #000; box-shadow: 0 0 20px rgba(255, 77, 77, 0.05); cursor: pointer; }
+        
+        .fs-btn {
+            position: absolute; top: 20px; right: 20px; z-index: 150;
+            background: rgba(0,0,0,0.5); border: 1px solid var(--usa-red); color: var(--usa-red);
+            padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 11px;
+            backdrop-filter: blur(5px); transition: 0.3s;
+        }
+
+        #play-overlay { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.7); display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; z-index: 20; cursor: pointer;
+            backdrop-filter: blur(5px);
+        }
+        .play-btn-icon { 
+            width: 80px; height: 80px; border: 2px solid var(--usa-red); border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; font-size: 28px; 
+            color: var(--usa-red); margin-bottom: 20px;
+        }
+
+        /* --- 右側列表 --- */
+        #playlist-panel { 
+            background: var(--panel-bg); padding: 25px 15px; border-left: 1px solid rgba(255, 77, 77, 0.1);
+            display: flex; flex-direction: column; height: 100vh; min-width: 0;
+        }
+        .list-title { font-size: 10px; color: #444; margin-bottom: 15px; letter-spacing: 2px; }
+        .clip-list-container { flex-grow: 1; overflow-y: auto; padding-right: 5px; }
+        .clip-card { background: #111; border-radius: 6px; padding: 12px; margin-bottom: 15px; cursor: pointer; border: 1px solid transparent; transition: 0.2s; }
+        .clip-card.active { border-color: var(--usa-red); background: rgba(255, 77, 77, 0.03); }
+        .thumb { width: 100%; height: 65px; background: #1a1a1a; border-radius: 4px; margin-bottom: 10px; border: 1px solid #222; }
+
+        .spec-btn {
+            width: 100%; background: rgba(255, 77, 77, 0.05); border: 1px solid var(--usa-red);
+            color: var(--usa-red); padding: 14px; cursor: pointer; font-size: 11px; 
+            letter-spacing: 1px; border-radius: 6px; margin-top: 10px;
+        }
+
+        @media (max-width: 1200px) {
+            body { grid-template-columns: 240px 1fr 200px; }
+            h1 { font-size: 16px; }
+            .project-btn { padding: 12px 10px; font-size: 13px; }
+        }
+
+        #tech-modal { display: none; position: fixed; z-index: 500; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); }
+        .modal-content { 
+            background: #0a0a0a; border: 1px solid #1a1a1a; margin: 8vh auto; padding: 30px; 
+            width: 75%; height: 75vh; display: flex; flex-direction: column; border-radius: 4px;
+        }
+        .editable-area { 
+            flex-grow: 1; background: #050505; border: 1px solid #222; padding: 25px; 
+            color: #ccc; line-height: 1.8; outline: none; overflow-y: auto; font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="side-panel">
+    <a href="index.html" class="back-link">← MONITORING SYSTEM</a>
+    <h1 id="main-title">USA RISK SPECIAL</h1>
+    <div class="project-menu">
+        <button id="btn-0" class="project-btn active" onclick="selectScene(0)">
+            <span style="font-size: 10px; opacity: 0.5;">RISK 01</span><br>
+            <strong>大選後：能源政策轉向</strong>
+            <div id="prog-0" class="progress-bar"></div>
+        </button>
+        <button id="btn-1" class="project-btn" onclick="selectScene(1)">
+            <span style="font-size: 10px; opacity: 0.5;">RISK 02</span><br>
+            <strong>OBBBA：補貼削減預警</strong>
+            <div id="prog-1" class="progress-bar"></div>
+        </button>
+        <button id="btn-2" class="project-btn" onclick="selectScene(2)">
+            <span style="font-size: 10px; opacity: 0.5;">RISK 03</span><br>
+            <strong>資金流：歐亞市場遷移</strong>
+            <div id="prog-2" class="progress-bar"></div>
+        </button>
+    </div>
+    
+    <div id="podcast-area">
+        <span id="p-title" style="font-size: 11px; color: #444;">🎙️ Podcast: Ready</span>
+        <audio id="audio-player" controls><source id="audio-src" src="usa/podcast_01.mp3" type="audio/mpeg"></audio>
+    </div>
+</div>
+
+<div id="display-zone">
+    <button class="fs-btn" onclick="toggleFull()">⛶ FULLSCREEN</button>
+    <div id="play-overlay" onclick="startPlayback()">
+        <div class="play-btn-icon">▶</div>
+        <div style="letter-spacing: 5px; font-size: 12px; color: var(--usa-red);">SYNC START</div>
+    </div>
+    <video id="main-video" playsinline preload="auto" ondblclick="toggleFull()">
+        <source id="video-src" src="usa/usa_01.mp4" type="video/mp4">
+    </video>
+</div>
+
+<div id="playlist-panel">
+    <div class="list-title">CURRENT PLAYLIST</div>
+    <div class="clip-list-container">
+        <div id="card-0" class="clip-card active" onclick="selectScene(0)"><div class="thumb"></div><span>01. 聯邦租賃限制放寬</span></div>
+        <div id="card-1" class="clip-card" onclick="selectScene(1)"><div class="thumb"></div><span>02. 45V 氫能稅收調整</span></div>
+        <div id="card-2" class="clip-card" onclick="selectScene(2)"><div class="thumb"></div><span>03. 資本逃逸路徑模擬</span></div>
+    </div>
+    <button class="spec-btn" onclick="openModal()">[ RISK SPECS / 大綱編輯 ]</button>
+</div>
+
+<div id="tech-modal">
+    <div class="modal-content">
+        <div style="display:flex; justify-content: space-between; margin-bottom:20px; align-items: center;">
+            <span style="color:var(--usa-red); letter-spacing: 3px; font-size: 14px;">USA POLICY RISK ANALYSIS</span>
+            <span style="cursor:pointer; font-size: 24px; color: #444;" onclick="closeModal()">✕</span>
+        </div>
+        <div id="spec-editor" class="editable-area" contenteditable="true" oninput="saveContent()"></div>
+        <div style="font-size: 10px; color: #444; margin-top: 15px; text-align: right;">※ AUTO-SAVING TO LOCAL STORAGE</div>
+    </div>
+</div>
+
+<script>
+    const sceneData = [
+        { video: "usa/usa_01.mp4", audio: "usa/podcast_01.mp3", title: "🎙️ Podcast: 大選後能源法案解讀" },
+        { video: "usa/usa_02.mp4", audio: "usa/podcast_02.mp3", title: "🎙️ Podcast: 補貼取消對亞太投資影響" },
+        { video: "usa/usa_03.mp4", audio: "usa/podcast_03.mp3", title: "🎙️ Podcast: 資本向歐亞市場遷移趨勢" }
+    ];
+
+    let currentIdx = 0;
+    const v = document.getElementById('main-video');
+    const a = document.getElementById('audio-player');
+    const editor = document.getElementById('spec-editor');
+
+    function selectScene(idx) {
+        currentIdx = idx;
+        document.querySelectorAll('.project-btn, .clip-card').forEach(el => el.classList.remove('active'));
+        document.getElementById(`btn-${idx}`).classList.add('active');
+        document.getElementById(`card-${idx}`).classList.add('active');
+        
+        v.src = sceneData[idx].video;
+        document.getElementById('audio-src').src = sceneData[idx].audio;
+        document.getElementById('p-title').innerText = sceneData[idx].title;
+        
+        loadContent(idx);
+        a.load(); v.load();
+        document.getElementById('play-overlay').style.display = 'flex';
+    }
+
+    function startPlayback() {
+        document.getElementById('play-overlay').style.display = 'none';
+        v.play(); a.play(); 
+    }
+
+    function toggleFull() {
+        if (v.requestFullscreen) { v.requestFullscreen(); }
+        else if (v.webkitRequestFullscreen) { v.webkitRequestFullscreen(); }
+        else if (v.msRequestFullscreen) { v.msRequestFullscreen(); }
+    }
+
+    // 💡 儲存鍵值更換為 usa_spec，實現獨立儲存
+    function saveContent() { localStorage.setItem(`usa_spec_v1_${currentIdx}`, editor.innerHTML); }
+    function loadContent(idx) { 
+        const saved = localStorage.getItem(`usa_spec_v1_${idx}`);
+        editor.innerHTML = saved || "<b>[USA 政策風險分析大綱]</b><br>請輸入針對美國大選後之政策評估、法律修訂建議或風險應對方案..."; 
+    }
+
+    function openModal() { document.getElementById('tech-modal').style.display = 'block'; }
+    function closeModal() { document.getElementById('tech-modal').style.display = 'none'; }
+
+    v.ontimeupdate = () => {
+        const prog = document.getElementById(`prog-${currentIdx}`);
+        if (v.duration) prog.style.width = (v.currentTime / v.duration) * 100 + "%";
+    };
+
+    window.onload = () => selectScene(0);
+</script>
+</body>
+</html>
