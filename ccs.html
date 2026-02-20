@@ -159,8 +159,8 @@
 <div id="playlist-panel">
     <div class="list-title">CURRENT PLAYLIST</div>
     <div class="clip-list-container">
-        <div id="card-0" class="clip-card active" onclick="selectScene(0)"><div class="thumb"></div><span>01. 監管權下放分析</span></div>
-        <div id="card-1" class="clip-card" onclick="selectScene(1)"><div class="thumb"></div><span>02. 跨國封存物流鏈</span></div>
+        <div id="card-0" class="clip-card active" onclick="selectScene(0)"><div class="thumb"></div><span>01. 跨國封存物流鏈</span></div>
+        <div id="card-1" class="clip-card" onclick="selectScene(1)"><div class="thumb"></div><span>02. 監管權下放分析</span></div>
         <div id="card-2" class="clip-card" onclick="selectScene(2)"><div class="thumb"></div><span>03. 封存監測技術</span></div>
     </div>
     <button class="spec-btn" onclick="openModal()">[ TECH SPECS / 大綱編輯 ]</button>
@@ -216,7 +216,6 @@
         else if (v.msRequestFullscreen) { v.msRequestFullscreen(); }
     }
 
-    // 💡 儲存鍵值更換，避免與 SAF 衝突
     function saveContent() { localStorage.setItem(`ccs_spec_v1_${currentIdx}`, editor.innerHTML); }
     function loadContent(idx) { 
         const saved = localStorage.getItem(`ccs_spec_v1_${idx}`);
@@ -234,5 +233,4 @@
     window.onload = () => selectScene(0);
 </script>
 </body>
-
 </html>
