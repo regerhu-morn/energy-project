@@ -124,12 +124,12 @@
     <div class="project-menu">
         <button id="btn-0" class="project-btn active" onclick="selectScene(0)">
             <span style="font-size: 10px; opacity: 0.5;">SCENE 01</span><br>
-            <strong>美國：Class VI 監管</strong>
+            <strong>亞太：S-Hub 樞紐</strong>
             <div id="prog-0" class="progress-bar"></div>
         </button>
         <button id="btn-1" class="project-btn" onclick="selectScene(1)">
             <span style="font-size: 10px; opacity: 0.5;">SCENE 02</span><br>
-            <strong>亞太：S-Hub 樞紐</strong>
+            <strong>美國：Class VI 監管</strong>
             <div id="prog-1" class="progress-bar"></div>
         </button>
         <button id="btn-2" class="project-btn" onclick="selectScene(2)">
@@ -180,8 +180,8 @@
 <script>
     // 💡 內容路徑更新為 ccs 資料夾
     const sceneData = [
-        { video: "ccs/ccs_01.mp4", audio: "ccs/podcast_01.mp3", title: "🎙️ Podcast: 美國監管權動向" },
-        { video: "ccs/ccs_02.mp4", audio: "ccs/podcast_02.mp3", title: "🎙️ Podcast: 亞太跨國樞紐佈局" },
+        { video: "ccs/ccs_01.mp4", audio: "ccs/podcast_01.mp3", title: "🎙️ Podcast: 亞太跨國樞紐佈局" },
+        { video: "ccs/ccs_02.mp4", audio: "ccs/podcast_02.mp3", title: "🎙️ Podcast: 美國監管權動向" },
         { video: "ccs/ccs_03.mp4", audio: "ccs/podcast_03.mp3", title: "🎙️ Podcast: 澳洲計畫實測數據" }
     ];
 
@@ -234,4 +234,5 @@
     window.onload = () => selectScene(0);
 </script>
 </body>
+
 </html>
