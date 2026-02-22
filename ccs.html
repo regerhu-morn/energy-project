@@ -210,10 +210,18 @@
         v.play(); a.play(); 
     }
 
+    // 💡 優化針對 iPad / iOS 的全螢幕觸發
     function toggleFull() {
-        if (v.requestFullscreen) { v.requestFullscreen(); }
-        else if (v.webkitRequestFullscreen) { v.webkitRequestFullscreen(); }
-        else if (v.msRequestFullscreen) { v.msRequestFullscreen(); }
+        if (v.webkitEnterFullscreen) {
+            // 這是 iPad / iPhone Safari 強制進入原生全螢幕的關鍵
+            v.webkitEnterFullscreen();
+        } else if (v.requestFullscreen) {
+            v.requestFullscreen();
+        } else if (v.webkitRequestFullscreen) {
+            v.webkitRequestFullscreen();
+        } else if (v.msRequestFullscreen) {
+            v.msRequestFullscreen();
+        }
     }
 
     function saveContent() { localStorage.setItem(`ccs_spec_v1_${currentIdx}`, editor.innerHTML); }
